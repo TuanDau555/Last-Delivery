@@ -73,6 +73,62 @@ mono_crash.*
 *.unitypackage.meta
 *.app
 
+# 3D Files
+*.fbx
+*.obj
+*.dae
+*.3ds
+*.blend
+*.stl
+*.gltf
+*.glb
+*.max
+*.c4d
+*.ma
+*.mb
+*.lwo
+*.ply
+*.dxf
+*.abc
+
+# Image Files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tga
+*.tif
+*.tiff
+*.psd
+*.ico
+*.exr
+*.hdr
+*.svg
+*.webp
+
+# Audio Files
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+*.m4a
+*.wma
+*.aiff
+*.aif
+*.mid
+*.midi
+
+# Video Files
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.flv
+*.mkv
+*.webm
+
 # Crashlytics generated file
 crashlytics-build.properties
 
