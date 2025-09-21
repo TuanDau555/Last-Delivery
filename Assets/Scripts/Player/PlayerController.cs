@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -22,6 +23,8 @@ public class PlayerController : MonoBehaviour
     private InputManager _inputManager;
 
     private float _clampAngle;
+    private float _timer;
+    private float _defaultPosY = 0; // starting point
     private Vector3 _playerVelocity;
     private Vector3 _moveDirection;
     private Vector2 _moveInput;
@@ -60,6 +63,10 @@ public class PlayerController : MonoBehaviour
         HandleMovementInput();
         HandleMouseLook();
 
+        if (_inputManager.IsCrouch())
+            HandleCrouch();
+
+        HandleHeadBob();
         ApplyFinalMovement();
     }
 
@@ -81,6 +88,29 @@ public class PlayerController : MonoBehaviour
         // Get mouse Delta
         _mouseDelta = _inputManager.GetMouseDelta();
         ApplyFinalLook(_clampAngle);
+    }
+
+    private void HandleCrouch()
+    {
+        if (IsGround() && !isTransition)
+        {
+            StartCoroutine(CrouchStand());
+        }
+    }
+
+    private void HandleHeadBob()
+    {
+        if (!IsGround()) return;
+
+        float _walkBobAmount = playerStatsSO.stats.walkBobAmount;
+        float _sprintBobAmount = playerStatsSO.stats.sprintBobAmount;
+        float _crouchBobAmount = playerStatsSO.stats.crouchBobAmount;
+
+        float _walk = playerStatsSO.stats.walkBobSpeed;
+        float _sprint = playerStatsSO.stats.sprintBobSpeed;
+        float _crouch = playerStatsSO.stats.crouchBobSpeed;
+
+        HeadBobbing(_walk, _crouch, _sprint, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
     }
     #endregion
 
@@ -109,6 +139,49 @@ public class PlayerController : MonoBehaviour
         _controller.Move(finalMove * Time.deltaTime);
     }
 
+    private IEnumerator CrouchStand()
+    {
+
+        // prevent standing if under something 
+        if (!isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1))
+        {
+            yield break;
+        }
+
+        // flag is changing state
+        isTransition = true;
+
+        float timeElapsed = 0;
+        float timeToCrouch = playerStatsSO.stats.timeToCrouch;
+
+        // Storing current height and center of Player
+        float currentHeight = _controller.height;
+        Vector3 currentCenter = _controller.center;
+
+        // Switch state
+        isCrouching = !isCrouching;
+
+        // Determine the height and center point of Player  
+        float targetHeight = isCrouching ? playerStatsSO.stats.standHeight : playerStatsSO.stats.crouchHeight;
+        Vector3 targetCenter = isCrouching ? playerStatsSO.stats.standingCenter : playerStatsSO.stats.standingCenter;
+
+        // Execute crouch
+        while (timeElapsed < timeToCrouch)
+        {
+            _controller.height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
+            _controller.center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure that the value this correct
+        _controller.height = targetHeight;
+        _controller.center = targetCenter;
+
+        // End changing State
+        isTransition = false;
+    }
+    
     private void ApplyFinalLook(float clampAngle)
     {
         // Look Sensitive
@@ -123,6 +196,23 @@ public class PlayerController : MonoBehaviour
 
         // Player direction follow camera look
         _moveDirection = playerCamera.TransformDirection(_moveDirection);
+    }
+
+    private void HeadBobbing(float walk, float crouch, float sprint, float walkBobAmount,float crouchBobAmount, float sprintBobAmount)
+    {
+        float headBobSpeed = !isCrouching ? crouch : _inputManager.IsSprinting() ? sprint : walk;
+        float headBobAmount = !isCrouching ? crouchBobAmount : _inputManager.IsSprinting() ? sprintBobAmount : walkBobAmount;
+
+        if (Mathf.Abs(_moveDirection.x) > 0.1f || Mathf.Abs(_moveDirection.z) > 0.1f)
+        {
+            _timer += Time.deltaTime * headBobSpeed;
+            // just want to bobbing on Y axis
+            playerCamera.transform.localPosition = new Vector3(
+                playerCamera.transform.localPosition.x,
+                _defaultPosY + Mathf.Sin(_timer) * headBobAmount,
+                playerCamera.transform.localPosition.z
+            );
+        }
     }
 
     #endregion
