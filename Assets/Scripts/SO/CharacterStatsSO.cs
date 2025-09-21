@@ -4,6 +4,8 @@ using UnityEngine;
 public class CharacterStatsSO : ScriptableObject
 {
     public Stats stats;
+    
+    [System.Serializable]
     public class Stats
     {
         public string statsName;
