@@ -1,13 +1,18 @@
+using System;
 using UnityEngine;
 
 public class InputManager : Singleton<InputManager>
 {
     private PlayerInput playerInput;
 
+    // Events
+    public event EventHandler OnInteractAction;
+
     public override void Awake()
     {
         base.Awake();
         playerInput = new PlayerInput();
+        playerInput.Player.Interact.performed += Interact_Performed;
     }
 
     void OnEnable()
@@ -23,5 +28,9 @@ public class InputManager : Singleton<InputManager>
     public Vector2 GetPlayerMovement() => playerInput.Player.Moving.ReadValue<Vector2>();
     public Vector2 GetMouseDelta() => playerInput.Player.Look.ReadValue<Vector2>();
     public bool IsSprinting() => playerInput.Player.Sprint.ReadValue<float>() > 0f; // Player have to move to Sprint
-    public bool IsCrouch() => playerInput.Player.Crouch.WasPressedThisFrame(); 
+    public bool IsCrouch() => playerInput.Player.Crouch.WasPressedThisFrame();
+    private void Interact_Performed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        OnInteractAction?.Invoke(this, EventArgs.Empty);
+    }
 }
