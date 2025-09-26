@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IObjectParent
 {
     #region Parameter 
     [Header("Reference")]
@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     [Header("Required Component")]
     [SerializeField] private Transform playerCamera;
 
+    [Header("Hold Point")]
+    [SerializeField] private Transform holdPoint;
 
     [Header("Check ground")]
     [SerializeField] private Transform groundCheck;
@@ -21,6 +23,7 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController _controller;
     private InputManager _inputManager;
+    private CargoObject cargoObject;
 
     private float _clampAngle;
     private float _timer;
@@ -214,7 +217,37 @@ public class PlayerController : MonoBehaviour
             );
         }
     }
-
-    #endregion
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
+    #endregion
+
+    #region Object Parent
+    public Transform GetObjectFollowTransform()
+    {
+        return holdPoint;
+    }
+
+    public void SetCargoObject(CargoObject cargoObject)
+    {
+        if (this.cargoObject != null)
+        {
+            Destroy(this.cargoObject.gameObject);
+        }
+        this.cargoObject = cargoObject;
+    }
+
+    public CargoObject GetCargoObject()
+    {
+        return cargoObject;
+    }
+
+    public void ClearCargoObject()
+    {
+        cargoObject = null;
+    }
+
+    public bool HasCargoObject()
+    {
+        return cargoObject != null;
+    }
+    #endregion
 }
