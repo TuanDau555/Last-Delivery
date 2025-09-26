@@ -20,11 +20,11 @@ MonoBehaviour:
     gravity: -9.81
     lookSensitive: 10
     lookLimit: 80
-    crouchHeight: 0.75
-    standHeight: 2
+    crouchHeight: 0.5
+    standHeight: 1.75
     timeToCrouch: 0.25
     crouchingCenter: {x: 0, y: 0.75, z: 0}
-    standingCenter: {x: 0, y: 0, z: 0}
+    standingCenter: {x: 0, y: -0.5, z: 0}
     walkBobSpeed: 14
     walkBobAmount: 0.05
     sprintBobSpeed: 18
