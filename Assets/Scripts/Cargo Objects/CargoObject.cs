@@ -19,7 +19,7 @@ public class CargoObject : MonoBehaviour
         {
             this.objectParent.ClearCargoObject();
         }
-        
+
         this.objectParent = objectParent; // the item is now belong to the player or table
 
         if (objectParent.HasCargoObject())
@@ -33,5 +33,12 @@ public class CargoObject : MonoBehaviour
 
         transform.parent = objectParent.GetObjectFollowTransform(); // just where it is being place at
         transform.localPosition = Vector3.zero; // reset it
+        transform.localRotation = Quaternion.identity; // reset it
+    }
+
+    public void DestroySelf()
+    {
+        objectParent.ClearCargoObject();
+        Destroy(gameObject);
     }
 }
