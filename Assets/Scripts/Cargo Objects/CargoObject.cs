@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Cargo objects are items that are being shipped and obtained from the player.
-/// It can be place on something, held by player. 
+/// It can be placed on something, held by player. 
 /// </summary>
 public class CargoObject : MonoBehaviour
 {
@@ -36,6 +36,21 @@ public class CargoObject : MonoBehaviour
         transform.localRotation = Quaternion.identity; // reset it
     }
 
+    public static CargoObject SpawnCargoObject(CargoObjectSO _cargoObjectSO, IObjectParent _objectParent)
+    {
+        Transform _cargoObjectTransform = Instantiate(_cargoObjectSO.cargoPrefab);
+
+        CargoObject cargoObject = _cargoObjectTransform.GetComponent<CargoObject>();
+        cargoObject.cargoObjectSO = _cargoObjectSO;
+        cargoObject.SetObjectParent(_objectParent);
+        return cargoObject;
+    }
+    
+    public void SetCargoObjectSO(CargoObjectSO so)
+    {
+        cargoObjectSO = so;
+    }
+    
     public void DestroySelf()
     {
         objectParent.ClearCargoObject();

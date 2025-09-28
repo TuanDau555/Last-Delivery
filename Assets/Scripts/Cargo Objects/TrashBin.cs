@@ -9,7 +9,7 @@ public class TrashBin : BaseInteract
         if (playerController.HasCargoObject())
         {
             playerController.GetCargoObject().DestroySelf();
-            Debug.Log($"You have threw {gameObject.name} into trash bin");
+            Debug.Log($"You have threw into trash bin");
         }
 
         else

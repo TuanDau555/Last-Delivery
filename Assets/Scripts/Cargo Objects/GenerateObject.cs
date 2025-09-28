@@ -8,12 +8,11 @@ public class GenerateObject : BaseInteract
     {
         if (!playerController.HasCargoObject())
         {
-            // Instantiate object...
-            Transform cargoObjectTransform = Instantiate(cargoObjectSO.objectPrefab);
-            cargoObjectTransform.localPosition = Vector3.zero;
-
-            //... And give it to player
-            cargoObjectTransform.GetComponent<CargoObject>().SetObjectParent(playerController);
+            CargoObject.SpawnCargoObject(cargoObjectSO, playerController);
+        }
+        else
+        {
+            Debug.LogWarning("You already hold something");
         }
     }
 }

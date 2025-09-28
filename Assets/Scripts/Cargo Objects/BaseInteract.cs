@@ -5,20 +5,20 @@ public class BaseInteract : MonoBehaviour, IObjectParent
 
     [SerializeField] private Transform placePoint;
 
-    private CargoObject cargoObject;
+    private CargoObject _cargoObject;
 
     public virtual void Interact(PlayerController playerController){}
 
     public void SetCargoObject(CargoObject cargoObject)
     {
-        this.cargoObject = cargoObject;
+        this._cargoObject = cargoObject;
     }
 
-    public CargoObject GetCargoObject() => cargoObject;
+    public CargoObject GetCargoObject() => _cargoObject;
 
     public Transform GetObjectFollowTransform() => placePoint;
 
-    public bool HasCargoObject() => cargoObject != null;
+    public bool HasCargoObject() => _cargoObject != null;
 
-    public void ClearCargoObject() => cargoObject = null;
+    public void ClearCargoObject() => _cargoObject = null;
 }
