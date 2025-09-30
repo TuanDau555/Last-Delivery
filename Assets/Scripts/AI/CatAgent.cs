@@ -12,10 +12,11 @@ public class CatAgent : BaseInteract
         if (playerController.HasCargoObject())
         {
             CargoObjectSO cargoObjectSO = playerController.GetCargoObject().GetCargoObjectSO();
-            DeliveryTable table = DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
 
-            target = table.transform;
             Debug.Log("Object to delivery: " + cargoObjectSO);
+            
+            // For testing
+            DeliveryTable table = DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
             Debug.Log("Location to get the deliver: " + table.name);
         }
         else
