@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour, IObjectParent
@@ -71,6 +72,16 @@ public class PlayerController : MonoBehaviour, IObjectParent
 
         HandleHeadBob();
         ApplyFinalMovement();
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoad;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoad;
     }
 
     #endregion
@@ -184,7 +195,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
         // End changing State
         isTransition = false;
     }
-    
+
     private void ApplyFinalLook(float clampAngle)
     {
         // Look Sensitive
@@ -201,7 +212,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
         _moveDirection = playerCamera.TransformDirection(_moveDirection);
     }
 
-    private void HeadBobbing(float walk, float crouch, float sprint, float walkBobAmount,float crouchBobAmount, float sprintBobAmount)
+    private void HeadBobbing(float walk, float crouch, float sprint, float walkBobAmount, float crouchBobAmount, float sprintBobAmount)
     {
         float headBobSpeed = !isCrouching ? crouch : _inputManager.IsSprinting() ? sprint : walk;
         float headBobAmount = !isCrouching ? crouchBobAmount : _inputManager.IsSprinting() ? sprintBobAmount : walkBobAmount;
@@ -248,6 +259,18 @@ public class PlayerController : MonoBehaviour, IObjectParent
     public bool HasCargoObject()
     {
         return cargoObject != null;
+    }
+    #endregion
+
+    #region OnSceneLoad
+    private void OnSceneLoad(Scene scene, LoadSceneMode mode)
+    {
+        if (DeliveryManager.Instance.currentDeliveryObject != null)
+        {
+            CargoObjectSO cargoObjectSO = DeliveryManager.Instance.currentDeliveryObject;
+
+            CargoObject.SpawnCargoObject(cargoObjectSO, this);
+        }
     }
     #endregion
 }

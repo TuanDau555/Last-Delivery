@@ -22,6 +22,7 @@ public class DeliveryTable : BaseInteract
             if (DeliveryManager.Instance.CheckDeliveryOrder(cargoObjectSO, this))
             {
                 cargoObject.DestroySelf();
+                DeliveryManager.Instance.ClearDeliveryObject();
                 Debug.Log("Delivery Success");
             }
             else

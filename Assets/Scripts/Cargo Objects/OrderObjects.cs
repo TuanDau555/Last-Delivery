@@ -13,7 +13,9 @@ public class OrderObjects : BaseInteract
         Transform cargoOrder = Instantiate(order.cargoOrderPrefab);
         CargoObject cargo = cargoOrder.GetComponent<CargoObject>();
         cargo.SetCargoObjectSO(order);
-        cargo.SetObjectParent(playerController);        
+        cargo.SetObjectParent(playerController);
+
+        DeliveryManager.Instance.SetCurrentDeliveryObject(order);  
         Debug.Log("You have an order to delivery");
     }
 }
