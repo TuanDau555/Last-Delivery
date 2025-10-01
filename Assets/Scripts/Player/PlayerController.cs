@@ -74,16 +74,6 @@ public class PlayerController : MonoBehaviour, IObjectParent
         ApplyFinalMovement();
     }
 
-    void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoad;
-    }
-
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoad;
-    }
-
     #endregion
 
     #region Get Input 
@@ -259,18 +249,6 @@ public class PlayerController : MonoBehaviour, IObjectParent
     public bool HasCargoObject()
     {
         return cargoObject != null;
-    }
-    #endregion
-
-    #region OnSceneLoad
-    private void OnSceneLoad(Scene scene, LoadSceneMode mode)
-    {
-        if (DeliveryManager.Instance.currentDeliveryObject != null)
-        {
-            CargoObjectSO cargoObjectSO = DeliveryManager.Instance.currentDeliveryObject;
-
-            CargoObject.SpawnCargoObject(cargoObjectSO, this);
-        }
     }
     #endregion
 }
