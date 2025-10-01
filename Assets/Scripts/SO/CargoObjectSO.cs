@@ -12,5 +12,5 @@ public class CargoObjectSO : ScriptableObject
     [Tooltip("This is where AI leads the player to")]
     public Transform destination;
     [Tooltip("Object image to present it")]
-    public Sprite sprite;
+    public Sprite cargoOrderSprite;
 }
