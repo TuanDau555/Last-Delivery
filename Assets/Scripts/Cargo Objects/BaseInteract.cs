@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class BaseInteract : MonoBehaviour, IObjectParent
 {
-
+    [Header("Base Interact")]
+    [Tooltip("Is the point that the object is placed")]
     [SerializeField] private Transform placePoint;
 
     private CargoObject _cargoObject;
