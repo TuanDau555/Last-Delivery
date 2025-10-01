@@ -1,13 +1,18 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class CatAgent : BaseInteract
 {
-    [Space(10)]
-    [SerializeField] private Transform playerPosition;
 
+    [Space(10)]
+    [Header("Navigation")]
+    [SerializeField] private Transform playerPosition;
     [Range(1, 10)]
     [SerializeField] private float followDistance;
+
+    [Header("UI / Display")]
+    [SerializeField] private SpriteRenderer orderDisplay; // Sprite on cat back
 
     private NavMeshAgent _catAgent;
 
@@ -59,6 +64,13 @@ public class CatAgent : BaseInteract
 
             Debug.Log("Object to delivery: " + cargoObjectSO);
 
+            // Assign the sprite to cat
+            if (orderDisplay != null && cargoObjectSO.cargoOrderSprite != null)
+            {
+                orderDisplay.sprite = cargoObjectSO.cargoOrderSprite;
+                orderDisplay.enabled = true;
+                Debug.Log("Assign sprite to cat");
+            }
             // For testing
             DeliveryTable table = DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
             Debug.Log("Location to get the deliver: " + table.name);
