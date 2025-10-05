@@ -16,8 +16,12 @@ MonoBehaviour:
     statsName: Enemy 1
     patrolWaiting: 1
     waitTime: 2
+    walkSpeed: 5
+    chaseSpeed: 8
     radius: 10
     angle: 80
+    attackDistance: 0
+    stoppingDistance: 0
     targetMask:
       serializedVersion: 2
       m_Bits: 256

@@ -1,4 +1,3 @@
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Character Stats,", menuName = "Stats/Enemy")]
@@ -17,13 +16,28 @@ public class EnemyStatsSO : ScriptableObject
         public float waitTime;
 
         [Space(10)]
+        [Header("Movement")]
+        public float walkSpeed;
+        public float chaseSpeed;
+        
+        [Space(10)]
         [Header("Field of View")]
         [Tooltip("Radius of enemy's view")]
         [Range(1, 60)]
         public float radius;
+
         [Tooltip("Angle of enemy's view")]
         [Range(1, 360)]
         public float angle;
+        
+        [Tooltip("Angle of enemy's view")]
+        [Range(1, 3)]
+        public float attackDistance;
+
+        [Tooltip("Angle of enemy's view")]
+        [Range(1, 3)]
+        public float stoppingDistance;
+        
         public LayerMask targetMask;
         public LayerMask obstructionMask;
 
