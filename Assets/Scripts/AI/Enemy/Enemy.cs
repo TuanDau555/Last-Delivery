@@ -5,15 +5,16 @@ using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private EnemyStatsSO enemyStatsSO;
-    [SerializeField] private NavMeshAgent agent;
+    [SerializeField] private NavMeshAgent enemyAgent;
 
+    private const string TAG = "Player";
     private StateMachine _stateMachine;
 
     #region Execute
     void Start()
     {
         _stateMachine = new StateMachine();
-
+        EnemyState(this, enemyAgent, _stateMachine);
     }
 
     void Update()
@@ -41,7 +42,17 @@ public class Enemy : MonoBehaviour
     /// <param name="stateMachine">this state machine</param> <summary>
     void EnemyState(Enemy enemy, NavMeshAgent agent, StateMachine stateMachine)
     {
+        FieldOfView fov = GetComponent<FieldOfView>();
+        PlayerController player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
 
+        var patrolState = new PatrolState(enemy, agent, enemyStatsSO.stats.patrolWaiting, enemyStatsSO.stats.waitTime, enemyStatsSO.stats.walkSpeed);
+        var chaseState = new ChaseState(enemy, agent, player.transform, fov, enemyStatsSO.stats.attackDistance, enemyStatsSO.stats.chaseSpeed);
+
+        Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
+        At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));
+        
+        // Set Initial State
+        stateMachine.SetState(patrolState);
     }
     #endregion
 }

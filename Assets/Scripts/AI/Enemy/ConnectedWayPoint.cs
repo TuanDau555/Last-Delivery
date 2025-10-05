@@ -8,6 +8,7 @@ public class ConnectedWayPoint : MonoBehaviour
     [Range(1, 100)]
     [Tooltip("Radius to connect waypoints together")]
     private float connectedRadius;
+    // TODO: we could add priority, instead of choosing random Enemy could choose based on weight point
     [SerializeField] private List<ConnectedWayPoint> _connection;
     [SerializeField] private bool isDrawGizmos;
 
@@ -28,7 +29,7 @@ public class ConnectedWayPoint : MonoBehaviour
         {
             ConnectedWayPoint nextWaypoint = _waypoint.GetComponent<ConnectedWayPoint>();
 
-             // found a waypoint
+            // found a waypoint
             if (nextWaypoint != null)
             {
                 // Evaluate the distance between two points, check if it connected 
@@ -58,5 +59,14 @@ public class ConnectedWayPoint : MonoBehaviour
             nextWaypoint = _connection[nextIndex];
         } while (nextWaypoint == previousWaypoint);
         return nextWaypoint;
+    }
+    
+    private void OnDrawGizmos()
+    {
+        if (isDrawGizmos)
+        {    
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, connectedRadius);
+        }
     }
 }

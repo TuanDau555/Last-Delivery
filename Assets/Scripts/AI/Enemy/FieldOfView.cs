@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEditor;
 using UnityEngine;
@@ -7,10 +6,10 @@ public class FieldOfView : MonoBehaviour
 {
     [SerializeField] private EnemyStatsSO enemyStatsSO;
     [SerializeField] private Transform playerRef;
-    [SerializeField] private bool canSeePlayer;
 
-    [SerializeField] private float _viewRadius;
-    [SerializeField] private float _viewAngle;
+    public float _viewRadius { private get; set; }
+    public float _viewAngle { private get; set; }
+    public bool canSeePlayer { get; private set; }
 
     void Start()
     {
@@ -51,7 +50,6 @@ public class FieldOfView : MonoBehaviour
                 if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, enemyStatsSO.stats.obstructionMask))
                 {
                     canSeePlayer = true;
-                    Debug.Log($"{gameObject.name} see {playerRef.name}");
                 }
                 else
                 {
