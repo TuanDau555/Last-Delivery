@@ -8,7 +8,14 @@ public class TrashBin : BaseInteract
 
         if (playerController.HasCargoObject())
         {
-            playerController.GetCargoObject().DestroySelf();
+            CargoObject cargoObject = playerController.GetCargoObject();
+            CargoObjectSO cargoSO = cargoObject.GetCargoObjectSO();
+
+            DeliveryManager.Instance.RemoveOrder(cargoSO);
+            DeliveryManager.Instance.ClearDeliveryObject();
+
+            
+            cargoObject.DestroySelf();
             Debug.Log($"You have threw into trash bin");
         }
 
