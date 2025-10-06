@@ -45,11 +45,12 @@ public class Enemy : MonoBehaviour
         FieldOfView fov = GetComponent<FieldOfView>();
         PlayerController player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
 
-        var patrolState = new PatrolState(enemy, agent, enemyStatsSO.stats.patrolWaiting, enemyStatsSO.stats.waitTime, enemyStatsSO.stats.walkSpeed);
-        var chaseState = new ChaseState(enemy, agent, player.transform, fov, enemyStatsSO.stats.attackDistance, enemyStatsSO.stats.chaseSpeed);
+        var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
+        var chaseState = new ChaseState(enemy, agent, player.transform, fov, enemyStatsSO);
 
-        Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
+        // Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));
+        At(chaseState, patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         
         // Set Initial State
         stateMachine.SetState(patrolState);
