@@ -35,16 +35,18 @@ public class StateMachine
 
     private void ChangeState(IState state)
     {
-        if (state == _currentNode.State) return; // Prevent jitter 
+        if (state == _currentNode.State) return; // Prevent jitter and no need to update new state
 
         var previousState = _currentNode.State;
-        var nextState = _nodes[state.GetType()].State;
 
         // if previous State not null
         previousState?.OnExit();
 
+        var nextState = _nodes[state.GetType()].State;
+
         // if not null State not null
         nextState?.OnEnter();
+        _currentNode = _nodes[state.GetType()]; // update new state
     }
     #endregion
 
