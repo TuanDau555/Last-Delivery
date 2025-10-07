@@ -18,8 +18,8 @@ MonoBehaviour:
     waitTime: 2
     walkSpeed: 5
     chaseSpeed: 8
-    radius: 10
-    angle: 80
+    radius: 15
+    angle: 145
     attackDistance: 0
     stoppingDistance: 0
     targetMask:

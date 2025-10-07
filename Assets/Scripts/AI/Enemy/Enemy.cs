@@ -35,7 +35,7 @@ public class Enemy : MonoBehaviour
 
     #region Enemy State
     /// <summary>
-    /// We add Sate here
+    /// We add State here
     /// </summary>
     /// <param name="enemy">This Enemy</param>
     /// <param name="agent">this agent</param>

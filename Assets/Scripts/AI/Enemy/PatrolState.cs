@@ -8,24 +8,18 @@ public class PatrolState : EnemyBaseState
 
     private NavMeshAgent _navMeshAgent;
     private ConnectedWayPoint _currentWaypoint, _previousWaypoint;
-
-    // These two get from Stats
-    private bool _enemyWaiting;
-    private float _waitTime;
+    private EnemyStatsSO _statsSO;
 
     private bool _isTraveling;
     private bool _isWaiting;
     private float _waitTimer;
-    private float _enemySpeed;
     private int _waypointVisited;
     private readonly Vector3 startPoint;
-    public PatrolState(Enemy enemy, NavMeshAgent agent, bool enemyWaiting, float waitTime, float enemySpeed) : base(enemy)
+    public PatrolState(Enemy enemy, NavMeshAgent agent, EnemyStatsSO statsSO) : base(enemy)
     {
         this.startPoint = enemy.transform.position;
         this._navMeshAgent = agent;
-        this._enemyWaiting = enemyWaiting;
-        this._waitTime = waitTime;
-        this._enemySpeed = enemySpeed;
+        this._statsSO = statsSO;
     }
     #endregion
 
@@ -34,6 +28,8 @@ public class PatrolState : EnemyBaseState
     {
         Debug.Log("Enemy is patrol");
         InitializeAgent();
+
+        FindDestination();
     }
 
     public override void OnExit()
@@ -52,7 +48,9 @@ public class PatrolState : EnemyBaseState
     private void InitializeAgent()
     {
         if (_navMeshAgent == null) return;
-        _navMeshAgent.speed = _enemySpeed;
+
+        _navMeshAgent.isStopped = false;
+        _navMeshAgent.speed = _statsSO.stats.walkSpeed;
         GetRandomWaypoint();
         
         FindDestination();
@@ -80,8 +78,8 @@ public class PatrolState : EnemyBaseState
                     if (startingPoint != null)
                     {
                         _currentWaypoint = startingPoint;
-                        Debug.Log($"Start Point: {startingPoint.name}");
                     }
+                    Debug.Log($"find {_currentWaypoint}");
                 }
             }
             else
@@ -100,7 +98,7 @@ public class PatrolState : EnemyBaseState
             _isTraveling = false;
             _waypointVisited++;
 
-            if (_enemyWaiting) // pass from Stats SO
+            if (_statsSO.stats.patrolWaiting) // pass from Stats SO
             {
                 _isWaiting = true; // go to wait condition logic...
                 _waitTimer = 0f; // reset the wait count
@@ -117,7 +115,7 @@ public class PatrolState : EnemyBaseState
             _waitTimer += Time.deltaTime;
 
             // if over the max wait time
-            if (_waitTimer >= _waitTime)
+            if (_waitTimer >= _statsSO.stats.waitTime)
             {
                 _isWaiting = false;
                 FindDestination();
@@ -138,7 +136,6 @@ public class PatrolState : EnemyBaseState
 
             // And the new current waypoint is the next waypoint
             _currentWaypoint = nextWaypoint;
-            Debug.Log($"Reached waypoint {_currentWaypoint.name}, moving to next...");
         }
 
         // Now we have the destination, let the agent know it

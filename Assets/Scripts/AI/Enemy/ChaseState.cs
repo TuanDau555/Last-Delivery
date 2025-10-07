@@ -6,22 +6,20 @@ public class ChaseState : EnemyBaseState
 {
     #region Parameter
     private NavMeshAgent _navMeshAgent;
+    private EnemyStatsSO _statsSO;
     private Transform _player;
     private FieldOfView _fov;
     private float _viewRadius;
     private float _viewAngle;
-    private float _attackDistance;
-    private float _enemySpeed;
     #endregion
 
     #region Constructor 
-    public ChaseState(Enemy enemy, NavMeshAgent agent, Transform player, FieldOfView fov, float attackDistance, float chaseSpeed) : base(enemy)
+    public ChaseState(Enemy enemy, NavMeshAgent agent, Transform player, FieldOfView fov, EnemyStatsSO statsSO) : base(enemy)
     {
         this._navMeshAgent = agent;
         this._player = player;
         this._fov = fov;
-        this._attackDistance = attackDistance;
-        this._enemySpeed = chaseSpeed;
+        this._statsSO = statsSO;
     }
     #endregion
 
@@ -50,8 +48,9 @@ public class ChaseState : EnemyBaseState
     {
         if (_navMeshAgent == null || _player == null) return;
 
-        _navMeshAgent.speed = _enemySpeed;
-        _navMeshAgent.stoppingDistance = _attackDistance;
+        _navMeshAgent.isStopped = false;
+        _navMeshAgent.speed = _statsSO.stats.chaseSpeed;
+        _navMeshAgent.stoppingDistance = _statsSO.stats.attackDistance;
 
     }
 
@@ -63,7 +62,7 @@ public class ChaseState : EnemyBaseState
         float distance = Vector3.Distance(_navMeshAgent.transform.position, _player.transform.position);
 
         // In attack range => stop
-        if (distance <= _attackDistance)
+        if (distance <= _statsSO.stats.attackDistance)
         {
             _navMeshAgent.ResetPath();
             return;
