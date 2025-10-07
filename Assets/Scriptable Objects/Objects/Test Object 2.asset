@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Test02
   objectName: Test Object 2
-  cargoOrderPrefab: {fileID: 6149381666265815060, guid: f3b369b714131d64883048ec9f63efea,
+  cargoOrderPrefab: {fileID: 6149381666265815060, guid: f322bd932f8b0f64c98332764d0b4aa7,
     type: 3}
   cargoPrefab: {fileID: 5642591704828850811, guid: 8d09f19ecaaaf0d49b1fd7e892647717,
     type: 3}

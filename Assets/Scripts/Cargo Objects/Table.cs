@@ -6,8 +6,6 @@ public class Table : BaseInteract
 
     public override void Interact(PlayerController player)
     {
-        Debug.Log("Interact!");
-
         // There nothing on the table...
         if (!HasCargoObject())
         {

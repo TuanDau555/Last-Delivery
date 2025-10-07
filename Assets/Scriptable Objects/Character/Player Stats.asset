@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats:
     statsName: Player Stats
-    walkSpeed: 5
+    walkSpeed: 3.5
     crouchSpeed: 2
-    sprintSpeed: 10
+    sprintSpeed: 8.5
     gravity: -9.81
     lookSensitive: 10
     lookLimit: 80
