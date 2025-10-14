@@ -19,7 +19,7 @@ MonoBehaviour:
     sprintSpeed: 8.5
     gravity: -9.81
     lookSensitive: 10
-    lookLimit: 80
+    lookLimit: 70
     crouchHeight: 0.5
     standHeight: 1.75
     timeToCrouch: 0.25
