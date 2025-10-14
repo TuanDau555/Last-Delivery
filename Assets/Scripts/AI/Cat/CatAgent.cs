@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class CatAgent : BaseInteract
@@ -14,9 +15,14 @@ public class CatAgent : BaseInteract
     [Space(10)]
     [Header("UI / Display")]
     [SerializeField] private SpriteRenderer orderDisplay; // Sprite on cat back
+    [SerializeField] private Slider catMoodBar;
+
+    [Space(10)]
+    [SerializeField] private Vector3 catIdlePos;
 
     private StateMachine _stateMachine;
     private bool _isDelivery;
+    private float currentMoodBar;
     #endregion
 
     #region Execute
@@ -25,16 +31,21 @@ public class CatAgent : BaseInteract
         _stateMachine = new StateMachine();
         CatState(this, catAgent, _stateMachine);
         DeliveryManager.Instance.OnStartDelivery += Delivery_OnStartDelivery;
+        DeliveryManager.Instance.OnStopDelivery += Delivery_OnStopDelivery;
+
+        InitializeCatStats();
     }
 
     void OnDisable()
     {
         DeliveryManager.Instance.OnStartDelivery -= Delivery_OnStartDelivery;
+        DeliveryManager.Instance.OnStopDelivery -= Delivery_OnStopDelivery;
     }
 
     void Update()
     {
         _stateMachine.Update();
+        UpdateMood();
     }
 
     void FixedUpdate()
@@ -61,8 +72,7 @@ public class CatAgent : BaseInteract
             {
                 orderDisplay.sprite = cargoObjectSO.cargoOrderSprite;
                 orderDisplay.enabled = true;
-
-                // TODO: ADD start delivery Event here 
+ 
                 DeliveryManager.Instance.TriggerStartDelivery(cargoObjectSO, table);
             }
             // For testing
@@ -92,7 +102,7 @@ public class CatAgent : BaseInteract
         var idleState = new CatIdleState(cat, agent);
         var followState = new FollowState(cat, agent, playerTransform, catStatsSO);
 
-        Any(idleState, new FuncPredicate(() => !_isDelivery));
+        Any(idleState, new FuncPredicate(() => _isDelivery == false));
         At(idleState, followState, new FuncPredicate(() => _isDelivery));
 
         // Set Initial State
@@ -105,16 +115,36 @@ public class CatAgent : BaseInteract
     {
         _isDelivery = true;
     }
+
+    private void Delivery_OnStopDelivery(object sender, EventArgs e)
+    {
+        _isDelivery = false;
+        transform.position = catIdlePos; // TODO: set the cat position at it bed 
+    }
     #endregion
-    
+
     #region Draw Cat Distance
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(catAgent.transform.position, catStatsSO.stats.followDistance);
-        
+
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(catAgent.transform.position, catStatsSO.stats.stopDistance);
     }
     #endregion
+
+    void InitializeCatStats()
+    {
+        catMoodBar.maxValue = catStatsSO.stats.catMoodBar;
+        currentMoodBar = catMoodBar.maxValue;
+        catMoodBar.value = currentMoodBar;
+    }
+
+    void UpdateMood()
+    {
+        if(catMoodBar.value >= 0)
+            catMoodBar.value -= Time.deltaTime * 2;
+    }
+    
 }

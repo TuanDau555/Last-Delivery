@@ -11,7 +11,16 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
 
     private int waitingCargoMax = 4;
     private List<CargoObjectSO> _waitingCargoObjectSOList = new List<CargoObjectSO>();
+
+    public DeliveryState currentDeliveryState { get; private set; }
     public CargoObjectSO currentDeliveryObject { get; private set; }
+    #endregion
+
+    #region Execute
+    void Start()
+    {
+        currentDeliveryState = DeliveryState.IDLE;
+    }
     #endregion
 
     #region Add Order
@@ -33,6 +42,11 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
         return waitingCargoObjectSO;
     }
 
+    /// <summary>
+    /// This is where to delivery
+    /// </summary>
+    /// <param name="order">the order player get</param>
+    /// <returns>The place to deliver</returns>
     public DeliveryTable TableToDelivery(CargoObjectSO order)
     {
         int randomTable = UnityEngine.Random.Range(0, deliveryTables.Length); // Lv 1 only 1 table to delivery so we will add constrain later
@@ -66,6 +80,11 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
         currentDeliveryObject = null;
     }
 
+    public bool HasPendingOrder()
+    {
+        return _waitingCargoObjectSOList != null && _waitingCargoObjectSOList.Count > 0;
+    }
+
     public void RemoveOrder(CargoObjectSO cargoObjectSO)
     {
         if (_waitingCargoObjectSOList.Contains(cargoObjectSO))
@@ -83,6 +102,8 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
     #region Deliver Event
     public event EventHandler<OnDeliveryEventArgs> OnStartDelivery;
     public event EventHandler<OnDeliveryEventArgs> OnDeliverySuccess;
+    public event EventHandler<OnDeliveryEventArgs> OnDeliveryFail;
+    public event EventHandler OnStopDelivery;
 
     public class OnDeliveryEventArgs : EventArgs
     {
@@ -99,13 +120,38 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
     public void TriggerStartDelivery(CargoObjectSO cargoObjectSO, DeliveryTable table)
     {
         Debug.Log($"[DeliveryManager] Start delivery: {cargoObjectSO.objectName} → {table.name}");
-        OnStartDelivery?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+        if (_waitingCargoObjectSOList != null)
+        {
+            OnStartDelivery?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+            currentDeliveryState = DeliveryState.DELIVER;
+        }
+    }
+
+    public void TriggerStopDelivery()
+    {
+        Debug.Log($"[DeliveryManager] Stop delivery");
+        OnStopDelivery?.Invoke(this, EventArgs.Empty);
+        currentDeliveryState = DeliveryState.IDLE;
     }
 
     public void TriggerDeliverySuccess(CargoObjectSO cargoObjectSO, DeliveryTable table)
     {
         Debug.Log($"[DeliveryManager] Delivery success: {cargoObjectSO.objectName} → {table.name}");
         OnDeliverySuccess?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+        currentDeliveryState = DeliveryState.IDLE;
+    }
+
+    public void TriggerDeliveryFail(CargoObjectSO cargoObjectSO, DeliveryTable table)
+    {
+        Debug.Log($"[DeliveryManager] Delivery fail wrong {cargoObjectSO.objectName} or {table.name}");
+        OnDeliveryFail?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+        currentDeliveryState = DeliveryState.DELIVER;
     }
     #endregion
+}
+
+public enum DeliveryState
+{
+    DELIVER,
+    IDLE
 }

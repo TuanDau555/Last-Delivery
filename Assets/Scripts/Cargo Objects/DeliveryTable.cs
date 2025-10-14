@@ -19,14 +19,17 @@ public class DeliveryTable : BaseInteract
             CargoObject cargoObject = playerController.GetCargoObject();
             CargoObjectSO cargoObjectSO = cargoObject.GetCargoObjectSO();
 
+            // Check delivery success 
             if (DeliveryManager.Instance.CheckDeliveryOrder(cargoObjectSO, this))
             {
                 cargoObject.DestroySelf();
                 DeliveryManager.Instance.ClearDeliveryObject();
-                Debug.Log("Delivery Success");
+                DeliveryManager.Instance.TriggerDeliverySuccess(cargoObjectSO, this);
+                DeliveryManager.Instance.TriggerStopDelivery();
             }
             else
             {
+                DeliveryManager.Instance.TriggerDeliveryFail(cargoObjectSO, this);
                 Debug.LogWarning("Wrong Delivery expected order is: " + _expectedCargo);
             }
         }
