@@ -2,35 +2,24 @@ using UnityEngine;
 
 public class BaseInteract : MonoBehaviour, IObjectParent
 {
-
+    [Header("Base Interact")]
+    [Tooltip("Is the point that the object is placed")]
     [SerializeField] private Transform placePoint;
 
-    private CargoObject cargoObject;
+    private CargoObject _cargoObject;
 
     public virtual void Interact(PlayerController playerController){}
 
-    public CargoObject GetCargoObject()
-    {
-        return cargoObject;
-    }
-
-    public Transform GetObjectFollowTransform()
-    {
-        return placePoint;
-    }
-
     public void SetCargoObject(CargoObject cargoObject)
     {
-        this.cargoObject = cargoObject;
+        this._cargoObject = cargoObject;
     }
 
-    public bool HasCargoObject()
-    {
-        return cargoObject != null;
-    }
+    public CargoObject GetCargoObject() => _cargoObject;
 
-    public void ClearCargoObject()
-    {
-        cargoObject = null;
-    }
+    public Transform GetObjectFollowTransform() => placePoint;
+
+    public bool HasCargoObject() => _cargoObject != null;
+
+    public void ClearCargoObject() => _cargoObject = null;
 }

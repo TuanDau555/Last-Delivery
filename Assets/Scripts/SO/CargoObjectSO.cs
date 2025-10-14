@@ -5,7 +5,12 @@ public class CargoObjectSO : ScriptableObject
 {
     public string id;
     public string objectName;
-    public Transform objectPrefab;
+    [Tooltip("The object when player take an order")]
+    public Transform cargoOrderPrefab;
+    [Tooltip("The object to delivery")]
+    public Transform cargoPrefab;
+    [Tooltip("This is where AI leads the player to")]
+    public Transform destination;
     [Tooltip("Object image to present it")]
-    public Sprite sprite;
+    public Sprite cargoOrderSprite;
 }
