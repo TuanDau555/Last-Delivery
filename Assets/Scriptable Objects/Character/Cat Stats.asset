@@ -15,3 +15,4 @@ MonoBehaviour:
   stats:
     followDistance: 8.19
     stopDistance: 3.08
+    catMoodBar: 100

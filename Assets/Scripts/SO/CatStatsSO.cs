@@ -15,5 +15,7 @@ public class CatStatsSO : ScriptableObject
         [Tooltip("If player in this range cat stop")]
         [Range(1, 10)]
         public float stopDistance;
+
+        public float catMoodBar;
     }
 }
