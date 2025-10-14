@@ -8,7 +8,7 @@ public class Interactable : Singleton<Interactable>
     [Range(1, 5)]
     [SerializeField] private float interactDistance = 2f;
     [SerializeField] private LayerMask interactLayerMask;
-    private BaseInteract selectedObject;
+    private BaseInteract _selectedObject;
     #endregion
 
     #region Execute
@@ -38,9 +38,9 @@ public class Interactable : Singleton<Interactable>
 
     private void InputManager_OnInteractAction(object sender, EventArgs e)
     {
-        if (selectedObject != null)
+        if (_selectedObject != null)
         {
-            selectedObject.Interact(this.GetComponent<PlayerController>());
+            _selectedObject.Interact(this.GetComponent<PlayerController>());
         }
     }
     #endregion
@@ -58,7 +58,7 @@ public class Interactable : Singleton<Interactable>
             if (raycastHit.transform.TryGetComponent(out BaseInteract baseInteract))
             {
                 // Is interact
-                if (baseInteract != selectedObject)
+                if (baseInteract != _selectedObject)
                 {
                     SetSelectedObject(baseInteract);
                 }
@@ -78,11 +78,13 @@ public class Interactable : Singleton<Interactable>
     // When Selected The Object
     private void SetSelectedObject(BaseInteract selectedObject)
     {
-        this.selectedObject = selectedObject;
+        this._selectedObject = selectedObject;
         OnSelectedChanged?.Invoke(this, new OnSelectedChangedEventArgs
         {
             selectedObjectEvent = selectedObject
         });
     }
+
+    // TODO: MAYBE SHOW INTERACT TEXT 
     #endregion
 }
