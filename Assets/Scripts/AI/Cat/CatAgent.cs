@@ -65,17 +65,22 @@ public class CatAgent : BaseInteract
             CargoObjectSO cargoObjectSO = playerController.GetCargoObject().GetCargoObjectSO();
             DeliveryTable table = DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
 
-            Debug.Log("Object to delivery: " + cargoObjectSO);
 
             // Assign the sprite to cat
-            if (orderDisplay != null && cargoObjectSO.cargoOrderSprite != null)
+            if (orderDisplay != null && cargoObjectSO.cargoOrderSprite != null && DeliveryManager.Instance.GetWaitingList().Count > 0)
             {
+                Debug.Log($"Waiting List: {DeliveryManager.Instance.GetWaitingList().Count}");
                 orderDisplay.sprite = cargoObjectSO.cargoOrderSprite;
                 orderDisplay.enabled = true;
- 
+
                 DeliveryManager.Instance.TriggerStartDelivery(cargoObjectSO, table);
             }
+            else
+            {
+                Debug.LogWarning($"This {cargoObjectSO.name} is already Delivery");
+            }
             // For testing
+            Debug.Log("Object to delivery: " + cargoObjectSO);
             Debug.Log("Location to get the deliver: " + table.name);
         }
         else

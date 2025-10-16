@@ -79,7 +79,6 @@ public class PatrolState : EnemyBaseState
                     {
                         _currentWaypoint = startingPoint;
                     }
-                    Debug.Log($"find {_currentWaypoint}");
                 }
             }
             else
