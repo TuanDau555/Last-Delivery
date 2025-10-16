@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private EnemyStatsSO enemyStatsSO;
     [SerializeField] private NavMeshAgent enemyAgent;
+    [SerializeField] private bool UseMovementPrediction;
 
     private const string TAG = "Player";
     private StateMachine _stateMachine;
@@ -46,7 +47,7 @@ public class Enemy : MonoBehaviour
         PlayerController player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
 
         var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
-        var chaseState = new ChaseState(enemy, agent, player.transform, fov, enemyStatsSO);
+        var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO, UseMovementPrediction);
 
         // Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));
