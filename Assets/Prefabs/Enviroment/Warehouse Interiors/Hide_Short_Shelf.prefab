@@ -75,6 +75,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 284751f28bc87d44486bb12370c9876d,
         type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 284751f28bc87d44486bb12370c9876d,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -155,6 +160,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Short_Shelf
+      objectReference: {fileID: 0}
+    - target: {fileID: 1833883459969149592, guid: b9e3d338737dfe8418cbb7610e37d464,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1833883459969149592, guid: b9e3d338737dfe8418cbb7610e37d464,
         type: 3}
