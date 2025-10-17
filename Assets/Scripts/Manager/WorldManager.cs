@@ -20,7 +20,10 @@ public class WorldManager : Singleton<WorldManager>
         currentDayText.text = _currentDay.ToString();
         currentMoneyText.text = _money.ToString();
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
+        DeliveryManager.Instance.OnDeliveryFail += TruMoney;
     }
+
+   
 
     void Update()
     {
@@ -29,7 +32,8 @@ public class WorldManager : Singleton<WorldManager>
 
     void OnDisable()
     {
-        DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;        
+        DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
+        DeliveryManager.Instance.OnDeliveryFail -= TruMoney;
     }
     #endregion
 
@@ -38,6 +42,12 @@ public class WorldManager : Singleton<WorldManager>
     private void AddMoney(object sender, EventArgs e)
     {
         _money += 10;
+        currentMoneyText.text = _money.ToString();
+        //
+    }
+    private void TruMoney(object sender, DeliveryManager.OnDeliveryEventArgs e)
+    {
+        _money -= 10;
         currentMoneyText.text = _money.ToString();
     }
 
