@@ -4,8 +4,12 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class CatAgent : BaseInteract
+public class CatAgent : BaseInteract, ISaveable
 {
+    #region KEYS
+    private const string CAT_MOOD = "CatMood";
+    #endregion
+    
     #region Parameter
     [Header("Pref")]
     [SerializeField] private CatStatsSO catStatsSO;
@@ -128,6 +132,33 @@ public class CatAgent : BaseInteract
     }
     #endregion
 
+    #region Init and Update Stats
+    void InitializeCatStats()
+    {
+        catMoodBar.maxValue = catStatsSO.stats.catMoodBar;
+        currentMoodBar = catMoodBar.maxValue;
+        catMoodBar.value = currentMoodBar;
+    }
+
+    void UpdateMood()
+    {
+        if (catMoodBar.value >= 0)
+            catMoodBar.value -= Time.deltaTime / 2;
+    }
+    #endregion
+
+    #region Save and Load
+    public void Save(SaveData data)
+    {
+        data.Set(CAT_MOOD, catMoodBar.value);
+    }
+    
+    public void Load(SaveData data)
+    {
+        catMoodBar.value = data.Get<float>(CAT_MOOD, catMoodBar.value);
+    }
+    #endregion
+    
     #region Draw Cat Distance
     void OnDrawGizmos()
     {
@@ -138,18 +169,4 @@ public class CatAgent : BaseInteract
         Gizmos.DrawWireSphere(catAgent.transform.position, catStatsSO.stats.stopDistance);
     }
     #endregion
-
-    void InitializeCatStats()
-    {
-        catMoodBar.maxValue = catStatsSO.stats.catMoodBar;
-        currentMoodBar = catMoodBar.maxValue;
-        catMoodBar.value = currentMoodBar;
-    }
-
-    void UpdateMood()
-    {
-        if(catMoodBar.value >= 0)
-            catMoodBar.value -= Time.deltaTime * 2;
-    }
-    
 }

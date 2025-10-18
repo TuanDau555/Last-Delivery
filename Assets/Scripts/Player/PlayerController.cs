@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour, IObjectParent
+public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 {
+    #region KEYS
+    private const string PLAYER_POSITION = "PlayerPosition";
+    #endregion
+    
     #region Parameter
     [Space(10)]
     [Header("Reference")]
@@ -63,6 +67,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
     private bool isCrouching = true;
     private bool isTransition;
 
+    private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #region Execute
     void Awake()
     {
@@ -268,7 +273,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
             lastPositionTime = Time.time;
         }
     }
-    
+
     /// <summary>
     /// Calculates the average horizontal (XZ) velocity from the recorded historicalVelocities.
     /// Ignores the vertical (Y) component and returns Vector3.zero if there are no samples.
@@ -287,6 +292,18 @@ public class PlayerController : MonoBehaviour, IObjectParent
         }
         averageVelocity.y = 0;
         return averageVelocity / historicalVelocities.Count;
+    }
+    #endregion
+
+    #region Save and Load
+    public void Save(SaveData data)
+    {
+        data.Set(PLAYER_POSITION, DEFAULT_POS);
+    }
+    
+    public void Load(SaveData data)
+    {
+        this.transform.position = data.Get<Vector3>(PLAYER_POSITION, DEFAULT_POS);
     }
     #endregion
     
