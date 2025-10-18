@@ -144,7 +144,7 @@ public class CatAgent : BaseInteract
     void UpdateMood()
     {
         if(catMoodBar.value >= 0)
-            catMoodBar.value -= Time.deltaTime * 2;
+            catMoodBar.value -= Time.deltaTime / 2;
     }
     
 }
