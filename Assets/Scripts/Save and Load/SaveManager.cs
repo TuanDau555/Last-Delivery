@@ -26,6 +26,7 @@ public class SaveManager : SingletonPersistent<SaveManager>
         saveData = new SaveData();
     }
 
+    [ContextMenu("Load Game")]
     public void LoadGame()
     {
         saveData = fileDataHandler.LoadFile();
@@ -46,6 +47,7 @@ public class SaveManager : SingletonPersistent<SaveManager>
         }
     }
 
+    [ContextMenu("Save Game")]
     public void SaveGame()
     {
         foreach (ISaveable saveable in saveableObject)

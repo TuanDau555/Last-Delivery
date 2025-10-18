@@ -28,7 +28,7 @@ public class FileDataHandler
     #region Save/Load
     public SaveData LoadFile()
     {
-        SaveData LoadData = null;
+        SaveData loadData = null;
 
         if (File.Exists(SavePath()))
         {
@@ -46,6 +46,9 @@ public class FileDataHandler
                         dataToLoad = reader.ReadToEnd();
                     }
                 }
+
+                // Deserialize the data from Json back into Objects
+                loadData = JsonUtility.FromJson<SaveData>(dataToLoad);
             }
             catch (Exception e)
             {
@@ -57,7 +60,7 @@ public class FileDataHandler
             Debug.LogError($"Save file does not exist at {SavePath()}");
         }
 
-        return LoadData;
+        return loadData;
     }
 
     public void SaveFile(SaveData data)
