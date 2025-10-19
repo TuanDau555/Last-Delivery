@@ -20,6 +20,7 @@ public class WorldManager : Singleton<WorldManager>
         currentDayText.text = _currentDay.ToString();
         currentMoneyText.text = _money.ToString();
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
+        DeliveryManager.Instance.OnDeliverySuccess += NextDay;
     }
 
     void Update()
@@ -30,6 +31,7 @@ public class WorldManager : Singleton<WorldManager>
     void OnDisable()
     {
         DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;        
+        DeliveryManager.Instance.OnDeliverySuccess -= NextDay;      
     }
     #endregion
 
