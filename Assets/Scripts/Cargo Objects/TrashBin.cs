@@ -6,34 +6,42 @@ public class TrashBin : BaseInteract
     {
         base.Interact(playerController);
 
-        if (playerController.HasCargoObject())
+        if (!playerController.HasCargoObject())
         {
-            CargoObject cargoObject = playerController.GetCargoObject();
-            CargoObjectSO cargoSO = cargoObject.GetCargoObjectSO();
+            Debug.LogWarning("Nothing to throw away");
+            return;
+        }
 
-            DeliveryManager.Instance.RemoveOrder(cargoSO);
+        CargoObject cargoObject = playerController.GetCargoObject();
+        CargoObjectSO cargoSO = cargoObject.GetCargoObjectSO();
 
-            // Just want to call this method if it delivery object
-            if(DeliveryManager.Instance.currentDeliveryObject == cargoSO)
+        // If is in Deliver and want to thrown out
+        if (DeliveryManager.Instance.currentDeliveryState == DeliveryState.DELIVER)
+        {
+            Debug.Log($"[TrashBin] You threw away the current delivery object ({cargoSO.objectName}).");
+
+            // ... Just remove from the current Deliver object 
+            DeliveryManager.Instance.ClearDeliveryObject();
+        }
+        else
+        {
+            if (DeliveryManager.Instance.currentDeliveryObject == cargoSO)
             {
-                Debug.Log($"You have throw {DeliveryManager.Instance.currentDeliveryObject}");
-                DeliveryManager.Instance.ClearDeliveryObject();
-            }
-
-            cargoObject.DestroySelf();
-            Debug.Log($"You have threw into trash bin");
-
-            // Cat only stop when there NO order to delivery
-            if (!DeliveryManager.Instance.HasPendingOrder())
-            {
-                DeliveryManager.Instance.TriggerStopDelivery();
-                Debug.Log("There are no object in List cat stop");
+                Debug.Log($"[TrashBin] You threw away a waiting order ({cargoSO.objectName}).");
+                DeliveryManager.Instance.RemoveOrder(cargoSO);
             }
         }
 
-        else
+        // Destroy object and Remove from player
+        cargoObject.DestroySelf();
+        playerController.ClearCargoObject();
+
+        // If there is no waiting object in the list, Stop the cat
+        if (!DeliveryManager.Instance.HasPendingOrder())
         {
-            Debug.LogWarning("Nothing to throw away");
+            Debug.Log("[TrashBin] No pending order left, cat stops following.");
+            DeliveryManager.Instance.TriggerStopDelivery();
         }
     }
 }
+

@@ -2,11 +2,17 @@ using System;
 using TMPro;
 using UnityEngine;
 
-public class WorldManager : Singleton<WorldManager>
+public class WorldManager : Singleton<WorldManager>, ISaveable
 {
+    #region KEYS
+    private const string CURRENT_MONEY = "CurrentMoney";
+    private const string CURRENT_DAY = "CurrentDay";
+    #endregion
+    
     #region Parameters
     [SerializeField] public int _money;
     [SerializeField] private int _currentDay;
+    private int currentLevel;
 
     [Space(10)]
     [Header("UI")]
@@ -16,11 +22,10 @@ public class WorldManager : Singleton<WorldManager>
 
     #region Execute
     void Start()
-    {        
-        currentDayText.text = _currentDay.ToString();
-        currentMoneyText.text = _money.ToString();
+    {
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
         DeliveryManager.Instance.OnDeliverySuccess += NextDay;
+        RefreshUI();
     }
 
     void Update()
@@ -44,14 +49,36 @@ public class WorldManager : Singleton<WorldManager>
     }
 
     [ContextMenu("Next Day")]
-    private void NextDay()
+    private void NextDay(object sender, EventArgs e)
     {
         _currentDay++;
         currentDayText.text = _currentDay.ToString();
-    } 
+    }
     #endregion
-    
-    #region Events
-    
+
+    #region Save and Load
+    public void Save(SaveData data)
+    {
+        data.Set(CURRENT_DAY, _currentDay);
+        data.Set(CURRENT_MONEY, _money);
+    }
+
+    public void Load(SaveData data)
+    {
+        _currentDay = data.Get<int>(CURRENT_DAY, this._currentDay);
+        _money = data.Get<int>(CURRENT_MONEY, this._money);
+
+        RefreshUI();
+    }
+    #endregion
+
+    #region UI
+    private void RefreshUI()
+    {
+        if (currentDayText != null)
+            currentDayText.text = _currentDay.ToString();
+        if (currentMoneyText != null)
+            currentMoneyText.text = _money.ToString();
+    }
     #endregion
 }
