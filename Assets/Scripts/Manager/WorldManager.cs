@@ -49,7 +49,7 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     }
 
     [ContextMenu("Next Day")]
-    private void NextDay()
+    private void NextDay(object sender, EventArgs e)
     {
         _currentDay++;
         currentDayText.text = _currentDay.ToString();
