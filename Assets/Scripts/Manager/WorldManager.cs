@@ -24,6 +24,7 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     void Start()
     {
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
+        DeliveryManager.Instance.OnDeliverySuccess += NextDay;
         RefreshUI();
     }
 
@@ -34,7 +35,8 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
 
     void OnDisable()
     {
-        DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;        
+        DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
+        DeliveryManager.Instance.OnDeliverySuccess -= NextDay;      
     }
     #endregion
 
