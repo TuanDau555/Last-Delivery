@@ -143,7 +143,20 @@ public class CatAgent : BaseInteract, ISaveable
     void UpdateMood()
     {
         if (catMoodBar.value >= 0)
-            catMoodBar.value -= Time.deltaTime / 2;
+            catMoodBar.value -= Time.deltaTime * 2;
+    }
+
+    public void ApplyBuff(float buffAmount)
+    {
+        currentMoodBar = Mathf.Clamp(currentMoodBar + buffAmount, 0, catMoodBar.maxValue);
+        catMoodBar.value = currentMoodBar;
+    }
+
+    public void UpgradeMaxMood(float upgradeValue)
+    {
+        catMoodBar.maxValue += upgradeValue;
+        currentMoodBar = catMoodBar.maxValue;
+        catMoodBar.value = currentMoodBar;
     }
     #endregion
 
