@@ -41,18 +41,38 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     #endregion
 
     #region Update World
-    [ContextMenu("Add Money")]
+    /// <summary>
+    /// Event Add money
+    /// </summary>
     private void AddMoney(object sender, EventArgs e)
     {
         _money += 10;
         currentMoneyText.text = _money.ToString();
     }
 
-    [ContextMenu("Next Day")]
+    /// <summary>
+    /// Collect enough amount off money
+    /// </summary>
     private void NextDay(object sender, EventArgs e)
     {
         _currentDay++;
         currentDayText.text = _currentDay.ToString();
+    }
+
+    /// <summary>
+    /// Call func this when the player buys an object
+    /// </summary>
+    /// <param name="amount">Price of the object</param>
+    public bool SpendMoney(int amount)
+    {
+        if (_money < amount) return false;
+        if (_money < 0)
+            _money = 0; // prevent negative number
+        
+        _money -= amount;
+        currentMoneyText.text = _money.ToString();
+
+        return true;
     }
     #endregion
 
@@ -73,6 +93,9 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     #endregion
 
     #region UI
+    /// <summary>
+    /// Refresh money text and day text when player load save file
+    /// </summary>
     private void RefreshUI()
     {
         if (currentDayText != null)
