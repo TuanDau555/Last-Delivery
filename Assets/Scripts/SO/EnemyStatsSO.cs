@@ -37,7 +37,9 @@ public class EnemyStatsSO : ScriptableObject
         [Tooltip("Angle of enemy's view")]
         [Range(1, 3)]
         public float stoppingDistance;
-        
+        [Tooltip("Wait time before back to Patrol State")]
+        [Range(1f, 3f)]
+        public float lostSightDelay = 2f;
         public LayerMask targetMask;
         public LayerMask obstructionMask;
 
@@ -48,7 +50,10 @@ public class EnemyStatsSO : ScriptableObject
         public float timeBetweenAttacks;
 
         [Space(10)]
-        [Header("Health")]
-        public float maxHealth;
+        [Header("Move Prediction")]
+        [Range(-1, 1)]
+        public float movePredictionThreshold = 0;
+        [Range(0.25f, 2f)]
+        public float movePredictionTime = 1;
     }
 }

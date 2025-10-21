@@ -59,6 +59,11 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
     {
         currentDeliveryObject = cargoObjectSO;
     }
+
+    public List<CargoObjectSO> GetWaitingList()
+    {
+        return _waitingCargoObjectSOList;
+    }
     #endregion
 
     #region Order Delivered

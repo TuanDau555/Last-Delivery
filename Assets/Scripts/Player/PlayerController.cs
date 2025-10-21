@@ -1,23 +1,52 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour, IObjectParent
+public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 {
-    #region Parameter 
+    #region KEYS
+    private const string PLAYER_POSITION = "PlayerPosition";
+    #endregion
+    
+    #region Parameter
+    [Space(10)]
     [Header("Reference")]
     [SerializeField] private CharacterStatsSO playerStatsSO;
 
+    [Space(10)]
     [Header("Required Component")]
     [SerializeField] private Transform playerCamera;
 
+    [Space(10)]
     [Header("Hold Point")]
     [SerializeField] private Transform holdPoint;
 
+    [Space(10)]
     [Header("Check ground")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundRadius = 0.4f;
     [SerializeField] private LayerMask groundMask;
+
+    [Space(10)]
+    [Header("Player Last Position")]
+    [SerializeField]
+    [Range(1f, 5f)]
+    // The time that player's latest position last
+    private float historicalPositionDuration = 1f;
+
+    [SerializeField]
+    [Range(0.001f, 1f)]
+    // The time between update player's latest position  
+    private float historicalPositionInterval = 0.1f;
+
+    private float lastPositionTime;
+    private int maxQueueSize;
+
+    // Store all position in a Queue
+    private Queue<Vector3> historicalVelocities;
+
+    private Vector3 averageVelocity;
     #endregion
 
     private CharacterController _controller;
@@ -38,6 +67,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
     private bool isCrouching = true;
     private bool isTransition;
 
+    private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #region Execute
     void Awake()
     {
@@ -52,6 +82,9 @@ public class PlayerController : MonoBehaviour, IObjectParent
         {
             _mouseDirection = transform.localRotation.eulerAngles;
         }
+
+        maxQueueSize = Mathf.CeilToInt(1f / historicalPositionInterval * historicalPositionDuration);
+        historicalVelocities = new Queue<Vector3>(maxQueueSize);
     }
 
     void Start()
@@ -70,6 +103,8 @@ public class PlayerController : MonoBehaviour, IObjectParent
 
         HandleHeadBob();
         ApplyFinalMovement();
+
+        UpdateHistoricalPosition();
     }
 
     #endregion
@@ -219,6 +254,59 @@ public class PlayerController : MonoBehaviour, IObjectParent
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion
 
+    #region Historical Position
+    private void UpdateHistoricalPosition()
+    {
+        // Only add player's velocities every certain amount of time to avoid updating too frequent  
+        if (lastPositionTime + historicalPositionInterval <= Time.time)
+        {
+            // if queue is ful of player's velocities...
+            if (historicalVelocities.Count == maxQueueSize)
+            {
+                //... Delete old one
+                historicalVelocities.Dequeue();
+            }
+
+            //... And add new one
+            historicalVelocities.Enqueue(_controller.velocity);
+
+            lastPositionTime = Time.time;
+        }
+    }
+
+    /// <summary>
+    /// Calculates the average horizontal (XZ) velocity from the recorded historicalVelocities.
+    /// Ignores the vertical (Y) component and returns Vector3.zero if there are no samples.
+    /// </summary>
+    /// <returns>Average horizontal velocity as a Vector3 (Y = 0).</returns>
+    public Vector3 GetAverageVelocity()
+    {
+        // Prevent null and division by 0
+        if (historicalVelocities == null || historicalVelocities.Count == 0)
+            return Vector3.zero;
+
+        averageVelocity = Vector3.zero;
+        foreach (Vector3 velocity in historicalVelocities)
+        {
+            averageVelocity += velocity;
+        }
+        averageVelocity.y = 0;
+        return averageVelocity / historicalVelocities.Count;
+    }
+    #endregion
+
+    #region Save and Load
+    public void Save(SaveData data)
+    {
+        data.Set(PLAYER_POSITION, DEFAULT_POS);
+    }
+    
+    public void Load(SaveData data)
+    {
+        this.transform.position = data.Get<Vector3>(PLAYER_POSITION, DEFAULT_POS);
+    }
+    #endregion
+    
     #region Object Parent
     public Transform GetObjectFollowTransform()
     {
