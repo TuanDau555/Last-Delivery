@@ -46,11 +46,14 @@ public class Enemy : MonoBehaviour
 
         var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
         var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
+        var attackState = new AttackState(enemy, agent);
 
-        // Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
+        Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));
-        At(chaseState, patrolState, new FuncPredicate(() => !fov.canSeePlayer));
-        
+        //At(chaseState, patrolState, new FuncPredicate(() => !fov.canSeePlayer));
+        // TODO: at chase state to attack state if in attack range
+        Any(attackState, new FuncPredicate(() => fov.inAttackRange));
+        At(attackState, chaseState, new FuncPredicate(() => fov.canSeePlayer && !fov.inAttackRange));
         // Set Initial State
         stateMachine.SetState(patrolState);
     }
