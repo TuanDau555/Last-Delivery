@@ -45,7 +45,6 @@ public class EnemyStatsSO : ScriptableObject
 
         [Space(10)]
         [Header("Attack")]
-        public float attackRange;
         public float attackDamage;
         public float timeBetweenAttacks;
 
