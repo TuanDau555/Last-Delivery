@@ -46,14 +46,21 @@ public class Enemy : MonoBehaviour
 
         var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
         var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
-        var attackState = new AttackState(enemy, agent);
+        // CẬP NHẬT: Thêm player và enemyStatsSO vào AttackState
+        var attackState = new AttackState(enemy, agent, player, enemyStatsSO);
 
+        // Transition: Any -> Patrol (Nếu không nhìn thấy player)
         Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
+        
+        // Transition: Patrol -> Chase (Nếu nhìn thấy player)
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));
-        //At(chaseState, patrolState, new FuncPredicate(() => !fov.canSeePlayer));
-        // TODO: at chase state to attack state if in attack range
-        Any(attackState, new FuncPredicate(() => fov.inAttackRange));
+        
+        // Transition: Chase -> Attack (Nếu ở trong tầm đánh)
+        At(chaseState, attackState, new FuncPredicate(() => fov.inAttackRange));
+
+        // Transition: Attack -> Chase (Nếu nhìn thấy player nhưng ra khỏi tầm đánh)
         At(attackState, chaseState, new FuncPredicate(() => fov.canSeePlayer && !fov.inAttackRange));
+        
         // Set Initial State
         stateMachine.SetState(patrolState);
     }
