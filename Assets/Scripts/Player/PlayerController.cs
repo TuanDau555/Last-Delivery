@@ -1,23 +1,54 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour, IObjectParent
+public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 {
-    #region Parameter 
+    #region KEYS
+    private const string PLAYER_POSITION = "PlayerPosition";
+    #endregion
+    
+    #region Parameter
+    [Space(10)]
     [Header("Reference")]
     [SerializeField] private CharacterStatsSO playerStatsSO;
 
+    [Space(10)]
     [Header("Required Component")]
     [SerializeField] private Transform playerCamera;
 
-    [Header("Hold Point")]
+    [Space(10)]
+    [Header("UI/Display")]
     [SerializeField] private Transform holdPoint;
+    [SerializeField] private Slider playerHealthBar;
 
+    [Space(10)]
     [Header("Check ground")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundRadius = 0.4f;
     [SerializeField] private LayerMask groundMask;
+
+    [Space(10)]
+    [Header("Player Last Position")]
+    [SerializeField]
+    [Range(1f, 5f)]
+    // The time that player's latest position last
+    private float historicalPositionDuration = 1f;
+
+    [SerializeField]
+    [Range(0.001f, 1f)]
+    // The time between update player's latest position  
+    private float historicalPositionInterval = 0.1f;
+
+    private float lastPositionTime;
+    private int maxQueueSize;
+
+    // Store all position in a Queue
+    private Queue<Vector3> historicalVelocities;
+
+    private Vector3 averageVelocity;
     #endregion
 
     private CharacterController _controller;
@@ -32,12 +63,27 @@ public class PlayerController : MonoBehaviour, IObjectParent
     private Vector2 _moveInput;
     private Vector3 _mouseDirection;
     private Vector2 _mouseDelta;
+    private Coroutine buffCoroutine;
 
     // I set it true at init because...
     // ...I want to make the player to be able crouching immediately at the beginning of the game
     private bool isCrouching = true;
     private bool isTransition;
 
+    private float _walkBobAmount;
+    private float _sprintBobAmount;
+    private float _crouchBobAmount;
+    private float _walkBobSpeed;
+    private float _sprintBobSpeed;
+    private float _crouchBobSpeed;
+    
+
+    public float _walkSpeed { private get; set; }
+    public float _sprintSpeed { private get; set; }
+    public float _crouchSpeed { private get; set; }
+    public float _currentHealth { private get; set; }
+
+    private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #region Execute
     void Awake()
     {
@@ -52,12 +98,17 @@ public class PlayerController : MonoBehaviour, IObjectParent
         {
             _mouseDirection = transform.localRotation.eulerAngles;
         }
+
+        maxQueueSize = Mathf.CeilToInt(1f / historicalPositionInterval * historicalPositionDuration);
+        historicalVelocities = new Queue<Vector3>(maxQueueSize);
     }
 
     void Start()
     {
         _inputManager = InputManager.Instance;
         playerCamera = Camera.main.transform;
+
+        InitPlayerStat(playerStatsSO);
     }
 
     void Update()
@@ -70,8 +121,30 @@ public class PlayerController : MonoBehaviour, IObjectParent
 
         HandleHeadBob();
         ApplyFinalMovement();
+
+        UpdateHistoricalPosition();
     }
 
+    void InitPlayerStat(CharacterStatsSO playerStats)
+    {   
+        // Move
+        _walkSpeed = playerStats.stats.walkSpeed;
+        _sprintSpeed = playerStats.stats.sprintSpeed;
+        _crouchSpeed = playerStats.stats.crouchSpeed;
+
+        // Head Bob
+        _walkBobAmount = playerStats.stats.walkBobAmount;
+        _walkBobSpeed = playerStats.stats.walkBobSpeed;
+        _sprintBobAmount = playerStats.stats.sprintBobAmount;
+        _sprintBobSpeed = playerStats.stats.sprintBobSpeed;
+        _crouchBobAmount = playerStats.stats.crouchBobAmount;
+        _crouchBobSpeed = playerStats.stats.crouchBobSpeed;
+        
+        // Health and Stamina
+        playerHealthBar.maxValue = playerStats.stats.HP;
+        _currentHealth = playerHealthBar.maxValue;
+        playerHealthBar.value = _currentHealth;
+    }
     #endregion
 
     #region Get Input 
@@ -104,25 +177,33 @@ public class PlayerController : MonoBehaviour, IObjectParent
     {
         if (!IsGround()) return;
 
-        float _walkBobAmount = playerStatsSO.stats.walkBobAmount;
-        float _sprintBobAmount = playerStatsSO.stats.sprintBobAmount;
-        float _crouchBobAmount = playerStatsSO.stats.crouchBobAmount;
+        HeadBobbing(_walkBobSpeed, _crouchBobSpeed, _sprintBobSpeed, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
+    }
+    #endregion
 
-        float _walk = playerStatsSO.stats.walkBobSpeed;
-        float _sprint = playerStatsSO.stats.sprintBobSpeed;
-        float _crouch = playerStatsSO.stats.crouchBobSpeed;
+    #region Buff
+    public void ApplyBuff(float buffDuration, float speedAmount, float hpAmount)
+    {
+        buffCoroutine = StartCoroutine(BuffCoroutine(buffDuration, speedAmount, hpAmount));
+    }
+    
+    private IEnumerator BuffCoroutine(float buffDuration, float speedAmount, float hpAmount)
+    {
+        _walkSpeed *= (1 + speedAmount / 100f);
+        _sprintSpeed *= (1 + speedAmount / 100f);
+     
+        yield return new WaitForSeconds(buffDuration);
 
-        HeadBobbing(_walk, _crouch, _sprint, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
+        _walkSpeed = playerStatsSO.stats.walkSpeed;
+        _sprintSpeed = playerStatsSO.stats.sprintSpeed;
+        buffCoroutine = null;
+        Debug.Log("Buff End");
     }
     #endregion
 
     #region Final Calculate        
     private void ApplyFinalMovement()
     {
-        float walk = playerStatsSO.stats.walkSpeed;
-        float sprint = playerStatsSO.stats.sprintSpeed;
-        float crouch = playerStatsSO.stats.crouchSpeed;
-
         if (IsGround() && _playerVelocity.y < 0)
         {
             // reset Y velocity
@@ -134,7 +215,7 @@ public class PlayerController : MonoBehaviour, IObjectParent
 
         // if crouch using crouchSpeed else just use walk speed
         // NOTE: we don't want to sprint when crouch
-        float finalSpeed = !isCrouching ? crouch : _inputManager.IsSprinting() ? sprint : walk;
+        float finalSpeed = !isCrouching ? _crouchSpeed : _inputManager.IsSprinting() ? _sprintSpeed : _walkSpeed;
 
         // Apply movement
         Vector3 finalMove = (_moveDirection * finalSpeed) + (_playerVelocity.y * Vector3.up);
@@ -219,6 +300,59 @@ public class PlayerController : MonoBehaviour, IObjectParent
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion
 
+    #region Historical Position
+    private void UpdateHistoricalPosition()
+    {
+        // Only add player's velocities every certain amount of time to avoid updating too frequent  
+        if (lastPositionTime + historicalPositionInterval <= Time.time)
+        {
+            // if queue is ful of player's velocities...
+            if (historicalVelocities.Count == maxQueueSize)
+            {
+                //... Delete old one
+                historicalVelocities.Dequeue();
+            }
+
+            //... And add new one
+            historicalVelocities.Enqueue(_controller.velocity);
+
+            lastPositionTime = Time.time;
+        }
+    }
+
+    /// <summary>
+    /// Calculates the average horizontal (XZ) velocity from the recorded historicalVelocities.
+    /// Ignores the vertical (Y) component and returns Vector3.zero if there are no samples.
+    /// </summary>
+    /// <returns>Average horizontal velocity as a Vector3 (Y = 0).</returns>
+    public Vector3 GetAverageVelocity()
+    {
+        // Prevent null and division by 0
+        if (historicalVelocities == null || historicalVelocities.Count == 0)
+            return Vector3.zero;
+
+        averageVelocity = Vector3.zero;
+        foreach (Vector3 velocity in historicalVelocities)
+        {
+            averageVelocity += velocity;
+        }
+        averageVelocity.y = 0;
+        return averageVelocity / historicalVelocities.Count;
+    }
+    #endregion
+
+    #region Save and Load
+    public void Save(SaveData data)
+    {
+        data.Set(PLAYER_POSITION, DEFAULT_POS);
+    }
+    
+    public void Load(SaveData data)
+    {
+        this.transform.position = data.Get<Vector3>(PLAYER_POSITION, DEFAULT_POS);
+    }
+    #endregion
+    
     #region Object Parent
     public Transform GetObjectFollowTransform()
     {

@@ -20,15 +20,16 @@ MonoBehaviour:
     chaseSpeed: 8
     radius: 15
     angle: 145
-    attackDistance: 0
+    attackDistance: 2.5
     stoppingDistance: 0
+    lostSightDelay: 2
     targetMask:
       serializedVersion: 2
       m_Bits: 256
     obstructionMask:
       serializedVersion: 2
       m_Bits: 512
-    attackRange: 0
     attackDamage: 0
     timeBetweenAttacks: 0
-    maxHealth: 0
+    movePredictionThreshold: 0
+    movePredictionTime: 1
