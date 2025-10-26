@@ -35,13 +35,13 @@ public class ChaseState : EnemyBaseState
     public override void Update()
     {
         ChasePlayer();
-        InAttackRange();
     }
 
 
     public override void OnExit()
     {
         _navMeshAgent.ResetPath();
+        _navMeshAgent.isStopped = true; // Dừng agent khi thoát
     }
     #endregion
 
@@ -53,19 +53,24 @@ public class ChaseState : EnemyBaseState
         _navMeshAgent.isStopped = false;
         _navMeshAgent.speed = _statsSO.stats.chaseSpeed;
         _navMeshAgent.stoppingDistance = _statsSO.stats.attackDistance;
-
     }
     #endregion
 
     #region States
     private void ChasePlayer()
     {
+        // Đảm bảo Agent di chuyển
+        if (_navMeshAgent.isStopped)
+        {
+            _navMeshAgent.isStopped = false;
+        }
+
         // Estimate player's move and time, which enemy needs to go to player position  
         float timeToPlayer = Vector3.Distance(_player.transform.position, _navMeshAgent.transform.position)
         / _statsSO.stats.chaseSpeed;
 
         // To avoid Prediction player move to far
-        // ìf player goes further, the enemy can only prediction the amount of time (here is movePredictionTime) 
+        // if player goes further, the enemy can only prediction the amount of time (here is movePredictionTime)  
         if (timeToPlayer > _statsSO.stats.movePredictionTime)
         {
             timeToPlayer = _statsSO.stats.movePredictionTime;
@@ -74,9 +79,9 @@ public class ChaseState : EnemyBaseState
         // Prediction the position that player may come
         // This current position plus with Distance that player may go in that time
         /// Summary:
-        ///     If the player runs in direction X with an average speed of 5m/s and it takes me 1s to catch up to the same place → then the player has gone another 5m, I should run there.
+        ///      If the player runs in direction X with an average speed of 5m/s and it takes me 1s to catch up to the same place → then the player has gone another 5m, I should run there.
         Vector3 targetPosition = _player.transform.position
-                    + _player.GetAverageVelocity() * timeToPlayer;
+                        + _player.GetAverageVelocity() * timeToPlayer;
 
 
         Vector3 directionToPlayer = (_player.transform.position - _navMeshAgent.transform.position).normalized;
@@ -88,7 +93,7 @@ public class ChaseState : EnemyBaseState
         // To Prevent run infront of player
         if (dot < _statsSO.stats.movePredictionThreshold)
         {
-            // ...No need to predict go to player position 
+            // ...No need to predict go to player position  
             targetPosition = _player.transform.position;
         }
 
@@ -97,17 +102,7 @@ public class ChaseState : EnemyBaseState
     }
     #endregion
         
-    #region Change State
-    private void InAttackRange()
-    {
-        float distance = Vector3.Distance(_navMeshAgent.transform.position, _player.transform.position);
-
-        // In attack range => stop
-        if (distance <= _statsSO.stats.attackDistance)
-        {
-            _navMeshAgent.ResetPath();
-            return;
-        }
-    }
-    #endregion
+    // #region Change State - Đã loại bỏ
+    // private void InAttackRange() { ... }
+    // #endregion
 }
