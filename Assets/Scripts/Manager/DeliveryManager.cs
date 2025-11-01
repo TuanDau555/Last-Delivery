@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DeliveryManager : SingletonPersistent<DeliveryManager>
+public class DeliveryManager : Singleton<DeliveryManager>
 {
     #region Parameter
     [SerializeField] private CargoObjectListSO cargoObjectListSO;
@@ -94,7 +94,7 @@ public class DeliveryManager : SingletonPersistent<DeliveryManager>
     {
         if (_waitingCargoObjectSOList.Contains(cargoObjectSO))
         {
-            _waitingCargoObjectSOList.RemoveAll(c => c.id == cargoObjectSO.id);
+            _waitingCargoObjectSOList.Remove(cargoObjectSO);
             Debug.Log($"Order {cargoObjectSO.name} has been removed from waiting list (thrown away).");
         }
         else
