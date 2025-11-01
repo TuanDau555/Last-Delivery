@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class InputManager : Singleton<InputManager>
+public class InputManager : SingletonPersistent<InputManager>
 {
     private PlayerInput playerInput;
 
@@ -22,7 +22,7 @@ public class InputManager : Singleton<InputManager>
 
     void OnDisable()
     {
-        playerInput.Disable();
+        //playerInput.Disable();
     }
 
     public Vector2 GetPlayerMovement() => playerInput.Player.Moving.ReadValue<Vector2>();

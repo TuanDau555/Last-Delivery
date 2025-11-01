@@ -89,12 +89,6 @@ public class FieldOfView : MonoBehaviour
                 }
             }
         }
-        // make sure Enemy can't see player at Start
-        // And when player out of range
-        else
-        {
-            Debug.Log($"{playerRef.name} has out of {gameObject.name} range");
-        }
 
         if (!sawTargetThisCheck && !inAttackRange)
         {
