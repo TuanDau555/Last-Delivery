@@ -18,4 +18,9 @@ MonoBehaviour:
   price: 10
   description: Increase cat mood immediately
   isCatItem: 1
-  buffValue: 1
+  isUpgradeItem: 0
+  upgradeValue: 1
+  catMoodBuff: 21.4
+  playerSpeedBuff: 0
+  playerHPBuff: 0
+  buffTime: 0

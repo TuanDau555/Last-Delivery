@@ -16,6 +16,11 @@ MonoBehaviour:
   displayVisual: {fileID: 6181342752484139777, guid: c48dd4ac2162da9459a1c006d6ec6282,
     type: 3}
   price: 22
-  description: Increase your health imediately
+  description: Increase your speedimediately
   isCatItem: 0
-  buffValue: 0
+  isUpgradeItem: 0
+  upgradeValue: 0
+  catMoodBuff: 0
+  playerSpeedBuff: 50
+  playerHPBuff: 0
+  buffTime: 5
