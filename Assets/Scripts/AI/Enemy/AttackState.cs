@@ -11,10 +11,13 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Constructor
-    public AttackState(Enemy enemy, NavMeshAgent agent) : base(enemy)
+    public AttackState(Enemy enemy, NavMeshAgent agent, FieldOfView fov, PlayerController player, EnemyStatsSO statsSO) : base(enemy)
     {
         // TODO: Add EnemyStatsSO, PlayerController, FOV to constructor
         this._navMeshAgent = agent;
+        this._fov = fov;
+        this._player = player;
+        this._statsSO = statsSO;
     }
     #endregion
 
@@ -46,8 +49,6 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Attack State
-    // TODO: Enemy Look at player when in attack State (Look at camera)
-
-    // TODO: Enemy attack player and player decreasing HP
+    // TODO: Enemy attack player and player decreasing  anh 
     #endregion
 }
