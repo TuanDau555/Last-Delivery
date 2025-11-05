@@ -101,8 +101,4 @@ public class ChaseState : EnemyBaseState
 
     }
     #endregion
-        
-    // #region Change State - Đã loại bỏ
-    // private void InAttackRange() { ... }
-    // #endregion
 }

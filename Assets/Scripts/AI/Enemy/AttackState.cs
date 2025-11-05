@@ -11,11 +11,12 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Constructor
-    public AttackState(Enemy enemy, NavMeshAgent agent, PlayerController player, EnemyStatsSO statsSO) : base(enemy)
+    public AttackState(Enemy enemy, NavMeshAgent agent, FieldOfView fov, PlayerController player, EnemyStatsSO statsSO) : base(enemy)
     {
         this._navMeshAgent = agent;
+        this._fov = fov;
         this._player = player;
-        this._statsSO = statsSO; 
+        this._statsSO = statsSO;
     }
     #endregion
 
@@ -50,31 +51,6 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Attack State
-    // Logic giúp Enemy xoay để nhìn về phía Player
-    private void LookAtPlayer()
-    {
-        if (_player == null) return;
-
-        // Tính toán hướng từ Enemy đến Player
-        Vector3 directionToPlayer = (_player.transform.position - enemy.transform.position).normalized;
-        // Bỏ qua trục Y để Enemy không bị nghiêng
-        directionToPlayer.y = 0;
-
-        if (directionToPlayer != Vector3.zero)
-        {
-            // Tính toán Quaternion cần thiết để Enemy xoay về hướng Player
-            Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-
-            // Xoay từ từ về hướng Player bằng cách sử dụng Slerp
-            // NOTE: Thay giá trị 5f bằng _statsSO.stats.rotationSpeed nếu có
-            float rotationSpeed = 5f; 
-
-            enemy.transform.rotation = Quaternion.Slerp(
-                enemy.transform.rotation, 
-                targetRotation, 
-                Time.deltaTime * rotationSpeed
-            );
-        }
-    }
+    // TODO: Enemy attack player and player decreasing  anh 
     #endregion
 }

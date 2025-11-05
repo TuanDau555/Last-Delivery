@@ -16,6 +16,12 @@ public class FieldOfView : MonoBehaviour
     public float _attackRange { private get; set; }
     public bool canSeePlayer { get; private set; }
     public bool inAttackRange { get; private set; }
+    public Vector3 directionToTarget { get; private set; }
+
+    void Awake()
+    {
+        playerRef = GameObject.FindObjectOfType<PlayerController>()?.transform;
+    }
 
     void Start()
     {
@@ -52,18 +58,19 @@ public class FieldOfView : MonoBehaviour
         if (rangeChecks.Length != 0)
         {
             Transform target = rangeChecks[0].transform;
-            
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
+
+            directionToTarget = (target.position - transform.position).normalized;
             float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
-            bool isBlocked = Physics.Raycast(transform.position, directionToTarget, distanceToTarget, enemyStatsSO.stats.obstructionMask); 
+            bool isBlocked = Physics.Raycast(transform.position, directionToTarget, distanceToTarget, enemyStatsSO.stats.obstructionMask);
 
             // Attack if in range
-            if(distanceToTarget <= _attackRange && !isBlocked)
+            if (distanceToTarget <= _attackRange && !isBlocked)
             {
+                canSeePlayer = true;
                 inAttackRange = true;
             }
-            
+
             // Check if the target is in the angle of view
             // We dived angle by 2 because we want to get half of the angle to check both side
             if (Vector3.Angle(transform.forward, directionToTarget) < _viewAngle / 2)
@@ -80,24 +87,10 @@ public class FieldOfView : MonoBehaviour
                         Debug.Log($"{gameObject.name} gained sight of {playerRef.name}");
                     }
                 }
-                else
-                {
-                    Debug.Log("Block by obstruction");
-                }
             }
-            else
-            {
-                Debug.Log("Not in cone angle");
-            }
-        }
-        // make sure Enemy can't see player at Start
-        // And when player out of range
-        else
-        {
-            Debug.Log($"{playerRef.name} has out of {gameObject.name} range");
         }
 
-        if (!sawTargetThisCheck)
+        if (!sawTargetThisCheck && !inAttackRange)
         {
             _lostSightTimer += delta;
 

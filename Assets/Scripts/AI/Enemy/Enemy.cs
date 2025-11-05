@@ -8,17 +8,28 @@ public class Enemy : MonoBehaviour
     [SerializeField] private NavMeshAgent enemyAgent;
     private const string TAG = "Player";
     private StateMachine _stateMachine;
+    PlayerController _player;
+    FieldOfView _fov;
+
+
 
     #region Execute
     void Start()
     {
         _stateMachine = new StateMachine();
-        EnemyState(this, enemyAgent, _stateMachine);
+
+        _player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
+        _fov = GetComponent<FieldOfView>();
+        
+        EnemyState(this, enemyAgent, _stateMachine, _player, _fov);
     }
 
     void Update()
     {
         _stateMachine.Update();
+        if(_fov.canSeePlayer || _fov.inAttackRange)
+            LookAtPlayer(_player.transform.position, _fov.directionToTarget, enemyStatsSO.stats.lookSpeed);
+
     }
 
     void FixedUpdate()
@@ -39,15 +50,12 @@ public class Enemy : MonoBehaviour
     /// <param name="enemy">This Enemy</param>
     /// <param name="agent">this agent</param>
     /// <param name="stateMachine">this state machine</param> <summary>
-    void EnemyState(Enemy enemy, NavMeshAgent agent, StateMachine stateMachine)
+    void EnemyState(Enemy enemy, NavMeshAgent agent, StateMachine stateMachine, PlayerController player, FieldOfView fov)
     {
-        FieldOfView fov = GetComponent<FieldOfView>();
-        PlayerController player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
 
         var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
         var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
-        // CẬP NHẬT: Thêm player và enemyStatsSO vào AttackState
-        var attackState = new AttackState(enemy, agent, player, enemyStatsSO);
+        var attackState = new AttackState(enemy, agent, fov, player, enemyStatsSO);
 
         // Transition: Any -> Patrol (Nếu không nhìn thấy player)
         Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
@@ -65,4 +73,29 @@ public class Enemy : MonoBehaviour
         stateMachine.SetState(patrolState);
     }
     #endregion
+
+    private void LookAtPlayer(Vector3 targetPos, Vector3 directionToPlayer, float rotationSpeed)
+    {
+        if (_player == null) return;
+
+        // Tính toán hướng từ Enemy đến Player
+        directionToPlayer = (targetPos - transform.position).normalized;
+        // Bỏ qua trục Y để Enemy không bị nghiêng
+        directionToPlayer.y = 0;
+
+        if (directionToPlayer != Vector3.zero)
+        {
+            // Tính toán Quaternion cần thiết để Enemy xoay về hướng Player
+            Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+
+            // Xoay từ từ về hướng Player bằng cách sử dụng Slerp
+            // NOTE: Thay giá trị 5f bằng _statsSO.stats.rotationSpeed nếu có 
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, 
+                targetRotation, 
+                Time.deltaTime * rotationSpeed
+            );
+        }
+    }
 }

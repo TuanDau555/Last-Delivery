@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats:
     statsName: Player Stats
-    HP: 0
-    stamina: 0
+    HP: 100
+    stamina: 100
     walkSpeed: 3.5
     crouchSpeed: 2
     sprintSpeed: 8.5
