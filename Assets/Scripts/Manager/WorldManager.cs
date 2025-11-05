@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 {
+    // <--- **Đã thêm:** Sự kiện Game Over TĨNH
+    public static event Action OnGameOver; 
+    
     #region KEYS & NAME
     private const string CURRENT_MONEY = "CurrentMoney";
     private const string CURRENT_DAY = "CurrentDay";
@@ -16,6 +19,11 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     [SerializeField] private int _currentDay;
     private int currentLevel;
 
+    [Space(10)]
+    [Header("Game Rules")]
+    [SerializeField] private int _minMoneyToNextDay = 50; // Số tiền tối thiểu
+    private bool isGameOver = false; // <--- Biến theo dõi trạng thái Game Over
+    
     [Space(10)]
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI currentDayText;
@@ -43,7 +51,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     void OnDisable()
     {
         DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
-        DeliveryManager.Instance.OnDeliverySuccess -= NextDay;      
+        DeliveryManager.Instance.OnDeliverySuccess -= NextDay;       
     }
     #endregion
 
@@ -62,8 +70,20 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// </summary>
     private void NextDay(object sender, EventArgs e)
     {
-        _currentDay++;
-        currentDayText.text = _currentDay.ToString();
+        if (isGameOver) return; // Nếu Game Over rồi thì không làm gì nữa
+        
+        // Kiểm tra số tiền tối thiểu
+        if (_money >= _minMoneyToNextDay)
+        {
+            _currentDay++;
+            currentDayText.text = _currentDay.ToString();
+            Debug.Log($"Passed to Day {_currentDay}");
+        }
+        else
+        {
+            Debug.LogWarning("Not enough money to pass to the next day!");
+            GameOver(); // Gọi Game Over
+        }
     }
 
     /// <summary>
@@ -81,6 +101,24 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
         return true;
     }
+    
+    /// <summary>
+    /// Handle Game Over state
+    /// </summary>
+    public void GameOver()
+    {
+        if (isGameOver) return; // Chỉ thực hiện Game Over một lần
+        
+        isGameOver = true;
+        Time.timeScale = 0; // Dừng game
+        Debug.Log("<color=red>GAME OVER! (WorldManager)</color>");
+        
+        // Kích hoạt sự kiện Game Over
+        OnGameOver?.Invoke(); 
+        
+        // TODO: Logic hiển thị màn hình Game Over UI
+    }
+    
     #endregion
 
     #region Save and Load
