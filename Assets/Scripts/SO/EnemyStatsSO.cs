@@ -40,12 +40,14 @@ public class EnemyStatsSO : ScriptableObject
         [Tooltip("Wait time before back to Patrol State")]
         [Range(1f, 3f)]
         public float lostSightDelay = 2f;
+        [Tooltip("Enemy Rotation Speed when looking player")]
+        [Range(1f, 10f)]
+        public float lookSpeed = 5f;
         public LayerMask targetMask;
         public LayerMask obstructionMask;
 
         [Space(10)]
         [Header("Attack")]
-        public float attackRange;
         public float attackDamage;
         public float timeBetweenAttacks;
 

@@ -1,37 +1,64 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ShopItem : BaseInteract
 {
     [Space(10)]
-    [SerializeField] private Transform displayPoint;
-    private GameObject visualDisplay;
-    private ShopItemSO _itemSO;
+    [SerializeField] private TextMeshProUGUI priceText;
+    [SerializeField] private TextMeshProUGUI descriptionText;
 
+    private ShopItemSO _shopItemSO;
     public override void Interact(PlayerController playerController)
     {
-        if (_itemSO == null) return;
-    }
+        base.Interact(playerController);
 
-    public void SetItem(ShopItemSO itemSO)
-    {
-        _itemSO = itemSO;
-
-        if (visualDisplay != null)
+        if (_shopItemSO == null)
         {
-            Destroy(visualDisplay);
+            Debug.LogWarning("No item in this slot");
+            return;
         }
 
-        if (itemSO.displayVisual != null)
-        {
-            visualDisplay = Instantiate(itemSO.displayVisual, displayPoint.position, displayPoint.rotation, displayPoint);
-        }
+        if (!WorldManager.Instance.SpendMoney(_shopItemSO.price)) return;
+
+        if (_shopItemSO.isCatItem)
+            ApplyCatBuff(_shopItemSO);
         else
-        {
-            Debug.LogWarning($"{itemSO.name} doesn't have anything to display");
-        }
+            ApplyPlayerBuff(_shopItemSO, playerController);
+
+        Destroy(gameObject);
+
     }
 
-    public ShopItemSO GetItem() => _itemSO;
+    public void InitializedItem(ShopItemSO itemSO)
+    {
+        _shopItemSO = itemSO;
+        priceText.text = $"${itemSO.price}";
+        descriptionText.text = itemSO.description;
+    }
+
+    #region Buy
+    private void ApplyCatBuff(ShopItemSO itemSO)
+    {
+        CatAgent cat = FindObjectOfType<CatAgent>();
+        if (cat == null)
+        {
+            Debug.LogWarning("No cat found to apply buff");
+            return;
+        }
+        
+        if (!itemSO.isUpgradeItem)
+        {
+            // TODO cat mood value increase
+            cat.ApplyBuff(itemSO.catMoodBuff);
+        }
+    }
+    
+    private void ApplyPlayerBuff(ShopItemSO itemSO, PlayerController player)
+    {
+        if (!itemSO.isUpgradeItem)
+        {
+            player.ApplyBuff(itemSO.buffTime, itemSO.playerSpeedBuff, itemSO.playerHPBuff);
+        }
+    }
+    #endregion
 }

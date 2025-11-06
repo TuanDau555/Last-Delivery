@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ShopManager : Singleton<ShopManager>
 {
+    [SerializeField] private float chanceToHaveItem = 0.7f;
     [SerializeField] private List<ShopItemSO> allShopItems;
-    [SerializeField] private List<ShopItem> shopItems;
-
+    [SerializeField] private List<ShopSlot> shopSlots;
     private List<ShopItemSO> _currentItems = new List<ShopItemSO>();
 
     void Start()
@@ -17,9 +17,18 @@ public class ShopManager : Singleton<ShopManager>
 
     private void DisplayOnWall()
     {
-        for(int _shopItem = 0; _shopItem < shopItems.Count; _shopItem++)
+        for(int _shopSlot = 0; _shopSlot < shopSlots.Count; _shopSlot++)
         {
-            shopItems[_shopItem].SetItem(_currentItems[_shopItem]);
+            var item = _currentItems[_shopSlot];
+
+            if (item != null)
+            {
+                shopSlots[_shopSlot].SetItem(item);
+            }
+            else
+            {
+                shopSlots[_shopSlot].SetItem(null);
+            }
         }
     }
 
@@ -28,11 +37,21 @@ public class ShopManager : Singleton<ShopManager>
         _currentItems.Clear();
 
         // Choose random items 
-        var randomItem = allShopItems.OrderBy(x => Random.value).ToList();
+        var randomItemPool = allShopItems.OrderBy(x => Random.value).ToList();
 
-        for(int _shopItem = 0; _shopItem < shopItems.Count; _shopItem++)
+        for(int _shopSlot = 0; _shopSlot < shopSlots.Count; _shopSlot++)
         {
-            _currentItems.Add(randomItem[_shopItem]);
+            bool hasItem = Random.value <= chanceToHaveItem;
+
+            if (hasItem && randomItemPool.Count > 0)
+            {
+                _currentItems.Add(randomItemPool[0]);
+                randomItemPool.RemoveAt(0);
+            }
+            else
+            {
+                _currentItems.Add(null);
+            }
         }
     }
 }

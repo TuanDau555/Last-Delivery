@@ -11,6 +11,10 @@ public class CharacterStatsSO : ScriptableObject
         public string statsName;
 
         [Space(10)]
+        [Header("HP/Stamina")]
+        public float HP;
+        public float stamina;
+        [Space(10)]
         [Header("Move")]
         public float walkSpeed;
         [Tooltip("Walk Speed when player is crouching")]

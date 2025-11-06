@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5bbfcfa165034c40b887addd4f5130b, type: 3}
+  m_Name: Test Item 2
+  m_EditorClassIdentifier: 
+  itemName: Test Item 2
+  displayVisual: {fileID: 6181342752484139777, guid: c48dd4ac2162da9459a1c006d6ec6282,
+    type: 3}
+  price: 22
+  description: Increase your speedimediately
+  isCatItem: 0
+  isUpgradeItem: 0
+  upgradeValue: 0
+  catMoodBuff: 0
+  playerSpeedBuff: 50
+  playerHPBuff: 0
+  buffTime: 5
