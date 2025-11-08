@@ -5,8 +5,8 @@ using UnityEngine;
 public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 {
     // <--- **Đã thêm:** Sự kiện Game Over TĨNH
-    public static event Action OnGameOver; 
-    
+    public static event Action OnGameOver;
+
     #region KEYS & NAME
     private const string CURRENT_MONEY = "CurrentMoney";
     private const string CURRENT_DAY = "CurrentDay";
@@ -82,7 +82,6 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         else
         {
             Debug.LogWarning("Not enough money to pass to the next day!");
-            GameOver(); // Gọi Game Over
         }
     }
 
@@ -112,9 +111,6 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         isGameOver = true;
         Time.timeScale = 0; // Dừng game
         Debug.Log("<color=red>GAME OVER! (WorldManager)</color>");
-        
-        // Kích hoạt sự kiện Game Over
-        OnGameOver?.Invoke(); 
         
         // TODO: Logic hiển thị màn hình Game Over UI
     }

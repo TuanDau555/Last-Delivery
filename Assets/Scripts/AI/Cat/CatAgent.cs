@@ -9,7 +9,7 @@ public class CatAgent : BaseInteract, ISaveable
     #region KEYS
     private const string CAT_MOOD = "CatMood";
     #endregion
-    
+
     #region Parameter
     [Header("Pref")]
     [SerializeField] private CatStatsSO catStatsSO;
@@ -37,9 +37,9 @@ public class CatAgent : BaseInteract, ISaveable
         CatState(this, catAgent, _stateMachine);
         DeliveryManager.Instance.OnStartDelivery += Delivery_OnStartDelivery;
         DeliveryManager.Instance.OnStopDelivery += Delivery_OnStopDelivery;
-        
+
         // <--- **Đã thêm:** Lắng nghe sự kiện Game Over
-        WorldManager.OnGameOver += HandleGameOver; 
+        WorldManager.OnGameOver += HandleGameOver;
 
         InitializeCatStats();
     }
@@ -48,7 +48,7 @@ public class CatAgent : BaseInteract, ISaveable
     {
         DeliveryManager.Instance.OnStartDelivery -= Delivery_OnStartDelivery;
         DeliveryManager.Instance.OnStopDelivery -= Delivery_OnStopDelivery;
-        
+
         // <--- **Đã thêm:** Hủy đăng ký sự kiện
         WorldManager.OnGameOver -= HandleGameOver;
     }
@@ -56,9 +56,9 @@ public class CatAgent : BaseInteract, ISaveable
     void Update()
     {
         if (catIsGameOver) return; // Không làm gì nếu đã Game Over
-        
+
         _stateMachine.Update();
-        UpdateMood(); 
+        UpdateMood();
     }
 
     void FixedUpdate()
@@ -71,7 +71,7 @@ public class CatAgent : BaseInteract, ISaveable
     public override void Interact(PlayerController playerController)
     {
         // Vô hiệu hóa tương tác nếu Game Over
-        if (catIsGameOver) return; 
+        if (catIsGameOver) return;
 
         base.Interact(playerController);
 
@@ -154,22 +154,15 @@ public class CatAgent : BaseInteract, ISaveable
 
     void UpdateMood()
     {
-        // Giảm thanh tâm trạng theo thời gian
         if (catMoodBar.value > 0)
         {
             catMoodBar.value -= Time.deltaTime * 2;
         }
 
-        // Kiểm tra điều kiện Game Over
         if (catMoodBar.value <= 0)
         {
-            catMoodBar.value = 0; 
-            
-            // Chỉ gọi GameOver, logic dừng game và vô hiệu hóa sẽ do Event xử lý
-            if (WorldManager.Instance != null)
-            {
-                WorldManager.Instance.GameOver(); 
-            }
+            catMoodBar.value = 0;
+            WorldManager.Instance.GameOver(); // ✅ Gọi qua instance
         }
     }
 
@@ -194,15 +187,15 @@ public class CatAgent : BaseInteract, ISaveable
     {
         catIsGameOver = true;
         Debug.Log("<color=red>Cat Agent: Mood zero! Disabling movement and interaction.</color>");
-        
+
         // Tắt khả năng di chuyển NavMeshAgent
         if (catAgent != null && catAgent.enabled)
         {
             catAgent.isStopped = true;
             catAgent.velocity = Vector3.zero;
-            catAgent.enabled = false; 
+            catAgent.enabled = false;
         }
-        
+
         // TODO: Cập nhật visual của mèo (animation/sprite) sang trạng thái Game Over/Buồn bã.
     }
 
@@ -211,13 +204,13 @@ public class CatAgent : BaseInteract, ISaveable
     {
         data.Set(CAT_MOOD, catMoodBar.value);
     }
-    
+
     public void Load(SaveData data)
     {
         catMoodBar.value = data.Get<float>(CAT_MOOD, catMoodBar.value);
     }
     #endregion
-    
+
     #region Draw Cat Distance
     void OnDrawGizmos()
     {
