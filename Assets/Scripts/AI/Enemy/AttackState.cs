@@ -13,7 +13,6 @@ public class AttackState : EnemyBaseState
     #region Constructor
     public AttackState(Enemy enemy, NavMeshAgent agent, FieldOfView fov, PlayerController player, EnemyStatsSO statsSO) : base(enemy)
     {
-        // TODO: Add EnemyStatsSO, PlayerController, FOV to constructor
         this._navMeshAgent = agent;
         this._fov = fov;
         this._player = player;
@@ -25,6 +24,8 @@ public class AttackState : EnemyBaseState
     public override void OnEnter()
     {
         base.OnEnter();
+        // Dừng di chuyển ngay lập tức khi vào trạng thái Attack
+        _navMeshAgent.isStopped = true;
         Debug.Log("Enemy is attacking");
     }
 
@@ -36,16 +37,17 @@ public class AttackState : EnemyBaseState
     public override void Update()
     {
         base.Update();
+        // Enemy Look at player when in attack State
+        LookAtPlayer(); 
+
+        // TODO: Enemy attack player and player decreasing HP (Logic tấn công sẽ được thêm vào đây)
     }
 
     public override void OnExit()
     {
+        _navMeshAgent.isStopped = false;
         _navMeshAgent.ResetPath();
     }
-    #endregion
-
-    #region Initialize
-    // TODO: Initialize Enemy stats from SO and call it from OnEnter()
     #endregion
 
     #region Attack State

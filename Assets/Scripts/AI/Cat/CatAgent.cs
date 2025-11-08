@@ -9,7 +9,7 @@ public class CatAgent : BaseInteract, ISaveable
     #region KEYS
     private const string CAT_MOOD = "CatMood";
     #endregion
-    
+
     #region Parameter
     [Header("Pref")]
     [SerializeField] private CatStatsSO catStatsSO;
@@ -27,6 +27,7 @@ public class CatAgent : BaseInteract, ISaveable
     private StateMachine _stateMachine;
     private bool _isDelivery;
     private float currentMoodBar;
+    private bool catIsGameOver = false; // <--- Thêm biến theo dõi trạng thái Game Over
     #endregion
 
     #region Execute
@@ -37,6 +38,9 @@ public class CatAgent : BaseInteract, ISaveable
         DeliveryManager.Instance.OnStartDelivery += Delivery_OnStartDelivery;
         DeliveryManager.Instance.OnStopDelivery += Delivery_OnStopDelivery;
 
+        // <--- **Đã thêm:** Lắng nghe sự kiện Game Over
+        WorldManager.OnGameOver += HandleGameOver;
+
         InitializeCatStats();
     }
 
@@ -44,10 +48,15 @@ public class CatAgent : BaseInteract, ISaveable
     {
         DeliveryManager.Instance.OnStartDelivery -= Delivery_OnStartDelivery;
         DeliveryManager.Instance.OnStopDelivery -= Delivery_OnStopDelivery;
+
+        // <--- **Đã thêm:** Hủy đăng ký sự kiện
+        WorldManager.OnGameOver -= HandleGameOver;
     }
 
     void Update()
     {
+        if (catIsGameOver) return; // Không làm gì nếu đã Game Over
+
         _stateMachine.Update();
         UpdateMood();
     }
@@ -61,9 +70,12 @@ public class CatAgent : BaseInteract, ISaveable
     #region Interact
     public override void Interact(PlayerController playerController)
     {
+        // Vô hiệu hóa tương tác nếu Game Over
+        if (catIsGameOver) return;
+
         base.Interact(playerController);
 
-
+        // ... (Giữ nguyên logic Interact) ...
         if (playerController.HasCargoObject())
         {
             CargoObjectSO cargoObjectSO = playerController.GetCargoObject().GetCargoObjectSO();
@@ -142,8 +154,16 @@ public class CatAgent : BaseInteract, ISaveable
 
     void UpdateMood()
     {
-        if (catMoodBar.value >= 0)
+        if (catMoodBar.value > 0)
+        {
             catMoodBar.value -= Time.deltaTime * 2;
+        }
+
+        if (catMoodBar.value <= 0)
+        {
+            catMoodBar.value = 0;
+            WorldManager.Instance.GameOver(); // ✅ Gọi qua instance
+        }
     }
 
     public void ApplyBuff(float buffAmount)
@@ -160,18 +180,37 @@ public class CatAgent : BaseInteract, ISaveable
     }
     #endregion
 
+    /// <summary>
+    /// Phản ứng với sự kiện Game Over.
+    /// </summary>
+    private void HandleGameOver()
+    {
+        catIsGameOver = true;
+        Debug.Log("<color=red>Cat Agent: Mood zero! Disabling movement and interaction.</color>");
+
+        // Tắt khả năng di chuyển NavMeshAgent
+        if (catAgent != null && catAgent.enabled)
+        {
+            catAgent.isStopped = true;
+            catAgent.velocity = Vector3.zero;
+            catAgent.enabled = false;
+        }
+
+        // TODO: Cập nhật visual của mèo (animation/sprite) sang trạng thái Game Over/Buồn bã.
+    }
+
     #region Save and Load
     public void Save(SaveData data)
     {
         data.Set(CAT_MOOD, catMoodBar.value);
     }
-    
+
     public void Load(SaveData data)
     {
         catMoodBar.value = data.Get<float>(CAT_MOOD, catMoodBar.value);
     }
     #endregion
-    
+
     #region Draw Cat Distance
     void OnDrawGizmos()
     {
