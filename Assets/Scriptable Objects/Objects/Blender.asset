@@ -16,7 +16,7 @@ MonoBehaviour:
   objectName: Blender 02
   cargoOrderPrefab: {fileID: 6149381666265815060, guid: f3b369b714131d64883048ec9f63efea,
     type: 3}
-  cargoPrefab: {fileID: 6368773933945275121, guid: c365e03712b8c414299cbe3a7c9189aa,
+  cargoPrefab: {fileID: 2377634603669225278, guid: 487aadc8a5bb7ac439888c8973eb4eb0,
     type: 3}
   destination: {fileID: 4087721611419536472, guid: 403674d7d51e6b84fa7b846487771ab7,
     type: 3}

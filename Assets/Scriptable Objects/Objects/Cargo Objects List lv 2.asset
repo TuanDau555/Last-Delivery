@@ -10,8 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ce82ed02feeb874a9da3347e6287fa5, type: 3}
-  m_Name: Cargo Objects List
+  m_Name: Cargo Objects List lv 2
   m_EditorClassIdentifier: 
   cargoObjectSOList:
-  - {fileID: 11400000, guid: a52e5e707dcf4794f984b42de98379fd, type: 2}
-  - {fileID: 11400000, guid: 00ee3141e18431c4ca7dcbb5aa4701aa, type: 2}
+  - {fileID: 11400000, guid: 39dc3ee4206c7434a8ae4eb8fc36a244, type: 2}
