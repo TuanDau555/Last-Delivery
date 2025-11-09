@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5f4afd38ffa6b141b700e7e6d30b0a5, type: 3}
   m_Name: TV 01
   m_EditorClassIdentifier: 
-  id: 
-  objectName: 
+  id: Tv01
+  objectName: Tv01
+  isLostItem: 1
   cargoOrderPrefab: {fileID: 114512334795414520, guid: 57beb3032260d2c4ca705640a8f518b3,
     type: 3}
   cargoPrefab: {fileID: 114512334795414520, guid: 7d904c4d3ce96ba428f65859ebc934c8,
