@@ -7,19 +7,25 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     #region KEYS & NAME
     private const string CURRENT_MONEY = "CurrentMoney";
     private const string CURRENT_DAY = "CurrentDay";
+    private const string CURRENT_COLLECTED = "CurrentCollected";
     private const string MONEY = "Money Count";
     private const string DAYS = "Day Count";
+    private const string COLLECTED = "Collected Count";
     #endregion
     
     #region Parameters
     [SerializeField] public int _money;
     [SerializeField] private int _currentDay;
+    [SerializeField] private int _itemLostCount;
     private int currentLevel;
 
     [Space(10)]
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI currentDayText;
     [SerializeField] private TextMeshProUGUI currentMoneyText;
+    [SerializeField] private GameObject lostObjectUI;
+    [SerializeField] private TextMeshProUGUI itemLostCountText;
+    [SerializeField] private TextMeshProUGUI totalItemCountText;
     #endregion
 
     #region Execute
@@ -33,6 +39,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
         DeliveryManager.Instance.OnDeliverySuccess += NextDay;
+        DeliveryManager.Instance.OnDeliverySuccess += IncreaseLostItemFound;
     }
 
     void Update()
@@ -44,6 +51,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
         DeliveryManager.Instance.OnDeliverySuccess -= NextDay;      
+        DeliveryManager.Instance.OnDeliverySuccess -= IncreaseLostItemFound;
     }
     #endregion
 
@@ -54,7 +62,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     private void AddMoney(object sender, EventArgs e)
     {
         _money += 10;
-        currentMoneyText.text = _money.ToString();
+        UpdateDayUI();
     }
 
     /// <summary>
@@ -63,7 +71,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     private void NextDay(object sender, EventArgs e)
     {
         _currentDay++;
-        currentDayText.text = _currentDay.ToString();
+        UpdateDayUI();
     }
 
     /// <summary>
@@ -73,13 +81,16 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     public bool SpendMoney(int amount)
     {
         if (_money < amount) return false;
-        if (_money < 0)
-            _money = 0; // prevent negative number
-        
-        _money -= amount;
-        currentMoneyText.text = _money.ToString();
+        _money = Mathf.Max(0, _money - amount); // prevent negative value
+        UpdateMoneyUI();
 
         return true;
+    }
+    
+    public void IncreaseLostItemFound(object sender, EventArgs e)
+    {
+        _itemLostCount++;
+        UpdateLostUI();
     }
     #endregion
 
@@ -105,16 +116,54 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// </summary>
     private void RefreshUI()
     {
-         if (currentDayText == null || currentMoneyText == null)
+        if (_currentDay < 7)
+        {
+            Hide();
+        }
+        else
+        {
+            Show();
+            DeliveryManager.Instance.isOpenLv2 = true;
+        }
+
+        if (currentDayText == null || currentMoneyText == null)
         {
             currentDayText = GameObject.Find(DAYS)?.GetComponent<TextMeshProUGUI>();
             currentMoneyText = GameObject.Find(MONEY)?.GetComponent<TextMeshProUGUI>();
         }
-        
-        if (currentDayText != null)
-            currentDayText.text = _currentDay.ToString();
+
+        UpdateDayUI();
+        UpdateMoneyUI();
+        UpdateLostUI();
+    }
+    
+    private void UpdateMoneyUI()
+    {
         if (currentMoneyText != null)
             currentMoneyText.text = _money.ToString();
     }
+
+    private void UpdateDayUI()
+    {
+        if (currentDayText != null)
+            currentDayText.text = _currentDay.ToString();
+    }
+
+    /// <summary>
+    /// Lost Object Collected UI
+    /// </summary>
+    private void UpdateLostUI()
+    {
+        if (lostObjectUI == null) return;
+
+        if (itemLostCountText != null)
+            itemLostCountText.text = _itemLostCount.ToString();
+
+        if (totalItemCountText != null)
+            totalItemCountText.text = DeliveryManager.Instance.totalLostItemCount.ToString();
+    }
+
+    private void Show() => lostObjectUI?.SetActive(true);
+    private void Hide() => lostObjectUI?.SetActive(false);
     #endregion
 }

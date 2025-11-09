@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DeliveryManager : Singleton<DeliveryManager>
 {
     #region Parameter
-    [SerializeField] private int totalLostItemCount = 5;
-    [SerializeField] private bool isOpenLv2 = false;
     [SerializeField] private CargoObjectListSO cargoObjectListSO;
     [SerializeField] private List<Transform> lostSpawnPoints;
     [SerializeField] private DeliveryTable[] deliveryTables; // Where will player delivery (it just only 3 place in total)
@@ -15,7 +14,8 @@ public class DeliveryManager : Singleton<DeliveryManager>
     private int waitingCargoMax = 4;
     private List<CargoObjectSO> _waitingCargoObjectSOList = new List<CargoObjectSO>();
 
-    private int deliveredLostCount = 0;
+    public bool isOpenLv2 { get; set; } = false; // as default
+    public int totalLostItemCount { get; private set; } = 5;
     public DeliveryState currentDeliveryState { get; private set; }
     public CargoObjectSO currentDeliveryObject { get; private set; }
     #endregion
