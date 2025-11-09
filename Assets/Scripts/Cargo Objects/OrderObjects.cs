@@ -11,7 +11,7 @@ public class OrderObjects : BaseInteract
         if (!playerController.HasCargoObject())
         {
             // Get Order
-            CargoObjectSO order = DeliveryManager.Instance.AddOrder();
+            CargoObjectSO order = DeliveryManager.Instance.AddRandomOrder();
         
             Transform cargoOrder = Instantiate(order.cargoOrderPrefab);
             CargoObject cargo = cargoOrder.GetComponent<CargoObject>();
