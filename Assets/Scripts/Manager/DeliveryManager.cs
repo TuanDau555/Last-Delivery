@@ -6,12 +6,16 @@ using UnityEngine;
 public class DeliveryManager : Singleton<DeliveryManager>
 {
     #region Parameter
+    [SerializeField] private int totalLostItemCount = 5;
+    [SerializeField] private bool isOpenLv2 = false;
     [SerializeField] private CargoObjectListSO cargoObjectListSO;
+    [SerializeField] private List<Transform> lostSpawnPoints;
     [SerializeField] private DeliveryTable[] deliveryTables; // Where will player delivery (it just only 3 place in total)
 
     private int waitingCargoMax = 4;
     private List<CargoObjectSO> _waitingCargoObjectSOList = new List<CargoObjectSO>();
 
+    private int deliveredLostCount = 0;
     public DeliveryState currentDeliveryState { get; private set; }
     public CargoObjectSO currentDeliveryObject { get; private set; }
     #endregion
@@ -20,11 +24,16 @@ public class DeliveryManager : Singleton<DeliveryManager>
     void Start()
     {
         currentDeliveryState = DeliveryState.IDLE;
+
+        if (isOpenLv2)
+        {
+            SpawnLostItems();
+        }
     }
     #endregion
 
     #region Add Order
-    public CargoObjectSO AddOrder()
+    public CargoObjectSO AddRandomOrder()
     {
         CargoObjectSO waitingCargoObjectSO = null;
         if (_waitingCargoObjectSOList.Count < waitingCargoMax)
@@ -40,6 +49,16 @@ public class DeliveryManager : Singleton<DeliveryManager>
             Debug.LogWarning("You have reach this day order limit");
         }
         return waitingCargoObjectSO;
+    }
+
+    public void AddLostItemToWaitingList(CargoObjectSO cargo)
+    {
+        if (!_waitingCargoObjectSOList.Contains(cargo))
+        {
+            _waitingCargoObjectSOList.Add(cargo);
+            Debug.Log($"[DeliveryManager] Added lost item {cargo.objectName} to waiting list.");
+        }
+
     }
 
     /// <summary>
@@ -101,6 +120,45 @@ public class DeliveryManager : Singleton<DeliveryManager>
         {
             Debug.LogWarning($"Tried to remove {cargoObjectSO.name} but it was not in waiting list.");
         }
+    }
+    #endregion
+
+    #region LostCargoObject
+    private void SpawnLostItems()
+    {
+        if (cargoObjectListSO == null || cargoObjectListSO.cargoObjectSOList.Count == 0)
+        {
+            Debug.LogWarning("[DeliveryManager] CargoObjectListSO is empty or missing!");
+            return;
+        }
+
+        if (lostSpawnPoints == null || lostSpawnPoints.Count == 0)
+        {
+            Debug.LogWarning("[DeliveryManager] No spawn points assigned for lost items!");
+            return;
+        }
+
+        // Mix the list
+        List<CargoObjectSO> randomCargoList = cargoObjectListSO.cargoObjectSOList.OrderBy(x => UnityEngine.Random.value).ToList();
+
+        // Make sure not to exceed the number of items available in the mixed list.
+        int spawnCount = Mathf.Min(totalLostItemCount, randomCargoList.Count);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            // Choose Random CargoObjectSO
+            CargoObjectSO selectedCargoSO = randomCargoList[i];
+
+            // Choose Random spawn Point
+            Transform randomPoint = lostSpawnPoints[UnityEngine.Random.Range(0, lostSpawnPoints.Count)];
+            lostSpawnPoints.Remove(randomPoint); // not spawn at the same place
+
+            // Spawn Lost object prefab
+            Transform cargoGO = Instantiate(selectedCargoSO.cargoOrderPrefab, randomPoint.position, Quaternion.identity);
+            CargoObject cargo = cargoGO.GetComponent<CargoObject>();
+        }
+
+        Debug.Log($"[DeliveryManager] Successfully spawned {spawnCount} lost items for Lv2!");
     }
     #endregion
 
