@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 {
@@ -11,6 +12,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     private const string MONEY = "Money Count";
     private const string DAYS = "Day Count";
     private const string COLLECTED = "Collected Count";
+    private const string IS_OPEN_LV2 = "Is Open Lv2";
     #endregion
     
     #region Parameters
@@ -26,6 +28,8 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     [SerializeField] private GameObject lostObjectUI;
     [SerializeField] private TextMeshProUGUI itemLostCountText;
     [SerializeField] private TextMeshProUGUI totalItemCountText;
+
+    public bool isOpenLv2 { get; private set; }
     #endregion
 
     #region Execute
@@ -39,7 +43,6 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
         DeliveryManager.Instance.OnDeliverySuccess += NextDay;
-        DeliveryManager.Instance.OnDeliverySuccess += IncreaseLostItemFound;
     }
 
     void Update()
@@ -47,11 +50,30 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
     }
 
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+
     void OnDisable()
     {
-        DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
-        DeliveryManager.Instance.OnDeliverySuccess -= NextDay;      
-        DeliveryManager.Instance.OnDeliverySuccess -= IncreaseLostItemFound;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (DeliveryManager.Instance != null)
+        {
+            DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
+            DeliveryManager.Instance.OnDeliverySuccess -= NextDay;
+        }
+    }
+    
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (DeliveryManager.Instance != null)
+        {
+            DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
+            DeliveryManager.Instance.OnDeliverySuccess += NextDay;
+        }
     }
     #endregion
 
@@ -62,7 +84,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     private void AddMoney(object sender, EventArgs e)
     {
         _money += 10;
-        UpdateDayUI();
+        UpdateMoneyUI();
     }
 
     /// <summary>
@@ -72,6 +94,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         _currentDay++;
         UpdateDayUI();
+        RefreshUI();
     }
 
     /// <summary>
@@ -87,10 +110,13 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         return true;
     }
     
-    public void IncreaseLostItemFound(object sender, EventArgs e)
+    public void IncreaseLostItemFound()
     {
-        _itemLostCount++;
-        UpdateLostUI();
+        if(SceneManager.GetActiveScene().name == "Lv2")
+        {
+            _itemLostCount++;
+            UpdateLostUI();
+        }
     }
     #endregion
 
@@ -99,12 +125,16 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         data.Set(CURRENT_DAY, _currentDay);
         data.Set(CURRENT_MONEY, _money);
+        data.Set(CURRENT_COLLECTED, _itemLostCount);
+        data.Set(IS_OPEN_LV2, isOpenLv2);
     }
 
     public void Load(SaveData data)
     {
         _currentDay = data.Get<int>(CURRENT_DAY, this._currentDay);
         _money = data.Get<int>(CURRENT_MONEY, this._money);
+        _itemLostCount = data.Get<int>(CURRENT_COLLECTED, this._itemLostCount);
+        isOpenLv2 = data.Get<bool>(IS_OPEN_LV2, this.isOpenLv2);
 
         RefreshUI();
     }
@@ -116,15 +146,6 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// </summary>
     private void RefreshUI()
     {
-        if (_currentDay < 7)
-        {
-            Hide();
-        }
-        else
-        {
-            Show();
-            DeliveryManager.Instance.isOpenLv2 = true;
-        }
 
         if (currentDayText == null || currentMoneyText == null)
         {
@@ -135,6 +156,16 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         UpdateDayUI();
         UpdateMoneyUI();
         UpdateLostUI();
+        
+        if (_currentDay < 7)
+        {
+            Hide();
+        }
+        else
+        {
+            Show();
+            isOpenLv2 = true;
+        }
     }
     
     private void UpdateMoneyUI()
@@ -160,7 +191,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
             itemLostCountText.text = _itemLostCount.ToString();
 
         if (totalItemCountText != null)
-            totalItemCountText.text = DeliveryManager.Instance.totalLostItemCount.ToString();
+            totalItemCountText.text = "/" + DeliveryManager.Instance.totalLostItemCount.ToString();
     }
 
     private void Show() => lostObjectUI?.SetActive(true);
