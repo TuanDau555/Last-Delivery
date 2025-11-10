@@ -14,7 +14,6 @@ public class DeliveryManager : Singleton<DeliveryManager>
     private int waitingCargoMax = 4;
     private List<CargoObjectSO> _waitingCargoObjectSOList = new List<CargoObjectSO>();
 
-    public bool isOpenLv2 { get; set; } = false; // as default
     public int totalLostItemCount { get; private set; } = 5;
     public DeliveryState currentDeliveryState { get; private set; }
     public CargoObjectSO currentDeliveryObject { get; private set; }
@@ -25,10 +24,6 @@ public class DeliveryManager : Singleton<DeliveryManager>
     {
         currentDeliveryState = DeliveryState.IDLE;
 
-        if (isOpenLv2)
-        {
-            SpawnLostItems();
-        }
     }
     #endregion
 
@@ -124,7 +119,7 @@ public class DeliveryManager : Singleton<DeliveryManager>
     #endregion
 
     #region LostCargoObject
-    private void SpawnLostItems()
+    public void SpawnLostItems()
     {
         if (cargoObjectListSO == null || cargoObjectListSO.cargoObjectSOList.Count == 0)
         {
@@ -201,6 +196,11 @@ public class DeliveryManager : Singleton<DeliveryManager>
     {
         Debug.Log($"[DeliveryManager] Delivery success: {cargoObjectSO.objectName} → {table.name}");
         OnDeliverySuccess?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+        if(cargoObjectSO.isLostItem)
+        {
+            WorldManager.Instance.IncreaseLostItemFound();
+        }
+        
         currentDeliveryState = DeliveryState.IDLE;
     }
 
