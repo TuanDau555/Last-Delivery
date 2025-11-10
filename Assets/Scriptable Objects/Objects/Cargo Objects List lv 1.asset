@@ -14,4 +14,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cargoObjectSOList:
   - {fileID: 11400000, guid: a52e5e707dcf4794f984b42de98379fd, type: 2}
-  - {fileID: 11400000, guid: 00ee3141e18431c4ca7dcbb5aa4701aa, type: 2}
