@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f4afd38ffa6b141b700e7e6d30b0a5, type: 3}
+  m_Name: Coffee maker
+  m_EditorClassIdentifier: 
+  id: Coffemaker
+  objectName: Coffeemaker
+  isLostItem: 1
+  cargoOrderPrefab: {fileID: 7550366720895533246, guid: d1fb7a56782dd48438596a7ef006ff41,
+    type: 3}
+  cargoPrefab: {fileID: 2483027951783636056, guid: 3c957079ca26f5e438ce880dcfb58024,
+    type: 3}
+  destination: {fileID: 0}
+  cargoOrderSprite: {fileID: 0}

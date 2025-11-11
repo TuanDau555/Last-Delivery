@@ -13,4 +13,10 @@ MonoBehaviour:
   m_Name: Cargo Objects List lv 2
   m_EditorClassIdentifier: 
   cargoObjectSOList:
+  - {fileID: 11400000, guid: 8776fbea5f8ac81418e40928f8a31aab, type: 2}
+  - {fileID: 11400000, guid: bb31eaafebf07ee4cba5f7bd6e76a219, type: 2}
+  - {fileID: 11400000, guid: 921fc925fb195d640854be214b9060d0, type: 2}
+  - {fileID: 11400000, guid: 74631f7a756717a40b4047066a9dc88b, type: 2}
   - {fileID: 11400000, guid: 39dc3ee4206c7434a8ae4eb8fc36a244, type: 2}
+  - {fileID: 11400000, guid: b6e3e880f5a7f074ba5a84c9268cb050, type: 2}
+  - {fileID: 11400000, guid: d1191ebc129b8a7429ec89621a2e7054, type: 2}

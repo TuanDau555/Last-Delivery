@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f4afd38ffa6b141b700e7e6d30b0a5, type: 3}
+  m_Name: Microwave 02
+  m_EditorClassIdentifier: 
+  id: Microwave02
+  objectName: Microwave02
+  isLostItem: 1
+  cargoOrderPrefab: {fileID: 289371399103547055, guid: 8a13fea538e5ee441b169799e5ffb44f,
+    type: 3}
+  cargoPrefab: {fileID: 54552832729542708, guid: 9ab444a3ac6fee64aa9650ac40b3107a,
+    type: 3}
+  destination: {fileID: 0}
+  cargoOrderSprite: {fileID: 0}
