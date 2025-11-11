@@ -1,7 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
@@ -23,6 +25,8 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     [Header("UI/Display")]
     [SerializeField] private Transform holdPoint;
     [SerializeField] private Slider playerHealthBar;
+    [SerializeField] private GameObject gameOverPanel; // <-- THÊM DÒNG NÀY
+    [SerializeField] private string mainMenuSceneName = "MainMenu"; // <-- THÊM DÒNG NÀY
 
     [Space(10)]
     [Header("Check ground")]
@@ -109,6 +113,11 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         playerCamera = Camera.main.transform;
 
         InitPlayerStat(playerStatsSO);
+        // THÊM: Ẩn panel Game Over khi bắt đầu
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
     }
 
     void Update()
@@ -179,6 +188,42 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         HeadBobbing(_walkBobSpeed, _crouchBobSpeed, _sprintBobSpeed, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
     }
+    #endregion
+   
+    #region 
+
+    public void TakeDamage(float damage)
+    {
+        _currentHealth -= damage;
+        playerHealthBar.value = _currentHealth;
+
+        if (_currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player has died. GAME OVER.");
+
+        // Vô hiệu hóa script này để người chơi không di chuyển được nữa
+        this.enabled = false;
+
+        // Hiện màn hình Game Over
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene(mainMenuSceneName);
+    }
+
     #endregion
 
     #region Buff

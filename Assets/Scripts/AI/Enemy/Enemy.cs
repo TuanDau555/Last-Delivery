@@ -9,6 +9,8 @@ public class Enemy : MonoBehaviour
     private const string TAG = "Player";
     private StateMachine _stateMachine;
 
+    public StateMachine StateMachine => _stateMachine;
+    public EnemyStatsSO StatsSO => enemyStatsSO;
     #region Execute
     void Start()
     {
@@ -46,7 +48,7 @@ public class Enemy : MonoBehaviour
 
         var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
         var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
-        var attackState = new AttackState(enemy, agent);
+        var attackState = new AttackState(enemy, agent, enemyStatsSO, player);
 
         Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));

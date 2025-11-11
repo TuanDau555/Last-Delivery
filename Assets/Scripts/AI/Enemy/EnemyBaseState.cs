@@ -1,4 +1,4 @@
-
+﻿
 public abstract class EnemyBaseState : IState
 {
 

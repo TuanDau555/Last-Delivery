@@ -54,5 +54,6 @@ public class EnemyStatsSO : ScriptableObject
         public float movePredictionThreshold = 0;
         [Range(0.25f, 2f)]
         public float movePredictionTime = 1;
+        internal float attackRate;
     }
 }
