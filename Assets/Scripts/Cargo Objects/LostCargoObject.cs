@@ -12,11 +12,14 @@ public class LostCargoObject : BaseInteract
             DeliveryManager.Instance.AddLostItemToWaitingList(cargoObjectSO);
             DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
             CargoObject.SpawnCargoObject(cargoObjectSO, playerController);
+
+            UIManager.Instance.ShowDeliveryTableFeedback(DeliveryManager.Instance.TableToDelivery(cargoObjectSO).name);
+            
             Destroy(transform.parent.gameObject);
         }
         else
         {
-            Debug.LogWarning("You already hold something");
+            UIManager.Instance.ShowPlayerHoldSomethingFeedback();
         }
     }
 }

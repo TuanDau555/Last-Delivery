@@ -69,11 +69,11 @@ public class CatAgent : BaseInteract, ISaveable
             CargoObjectSO cargoObjectSO = playerController.GetCargoObject().GetCargoObjectSO();
             DeliveryTable table = DeliveryManager.Instance.TableToDelivery(cargoObjectSO);
 
-
+            UIManager.Instance.ShowDeliveryTableFeedback(table.name);
+            
             // Assign the sprite to cat
             if (orderDisplay != null && cargoObjectSO.cargoOrderSprite != null && DeliveryManager.Instance.GetWaitingList().Count > 0)
             {
-                Debug.Log($"Waiting List: {DeliveryManager.Instance.GetWaitingList().Count}");
                 orderDisplay.sprite = cargoObjectSO.cargoOrderSprite;
                 orderDisplay.enabled = true;
 
@@ -81,11 +81,8 @@ public class CatAgent : BaseInteract, ISaveable
             }
             else
             {
-                Debug.LogWarning($"This {cargoObjectSO.name} is already Delivery");
+                UIManager.Instance.ShowAlreadyDeliverObject();
             }
-            // For testing
-            Debug.Log("Object to delivery: " + cargoObjectSO);
-            Debug.Log("Location to get the deliver: " + table.name);
         }
         else
         {

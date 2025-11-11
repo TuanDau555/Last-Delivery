@@ -24,7 +24,7 @@ public class OrderObjects : BaseInteract
         }
         else
         {
-            Debug.LogWarning("You already hold something");
+            UIManager.Instance.ShowPlayerHoldSomethingFeedback();
         }
 
     }

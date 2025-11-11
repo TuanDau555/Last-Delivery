@@ -12,7 +12,7 @@ public class GenerateObject : BaseInteract
         }
         else
         {
-            Debug.LogWarning("You already hold something");
+            UIManager.Instance.ShowPlayerHoldSomethingFeedback();
         }
     }
 }

@@ -194,20 +194,23 @@ public class DeliveryManager : Singleton<DeliveryManager>
 
     public void TriggerDeliverySuccess(CargoObjectSO cargoObjectSO, DeliveryTable table)
     {
-        Debug.Log($"[DeliveryManager] Delivery success: {cargoObjectSO.objectName} → {table.name}");
         OnDeliverySuccess?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
-        if(cargoObjectSO.isLostItem)
+        if (cargoObjectSO.isLostItem)
         {
             WorldManager.Instance.IncreaseLostItemFound();
         }
-        
+
+        UIManager.Instance.ShowDeliverySuccessFeedback(cargoObjectSO.cargoPrice);
+                
         currentDeliveryState = DeliveryState.IDLE;
     }
 
     public void TriggerDeliveryFail(CargoObjectSO cargoObjectSO, DeliveryTable table)
     {
-        Debug.Log($"[DeliveryManager] Delivery fail wrong {cargoObjectSO.objectName} or {table.name}");
         OnDeliveryFail?.Invoke(this, new OnDeliveryEventArgs(cargoObjectSO, table));
+
+        UIManager.Instance.ShowWrongDeliveryFeedback(cargoObjectSO.penaltyPrice);
+     
         currentDeliveryState = DeliveryState.DELIVER;
     }
     #endregion

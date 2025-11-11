@@ -4,14 +4,21 @@ public class ChangeSceneDoor : BaseInteract
 {
     public override void Interact(PlayerController playerController)
     {
+        base.Interact(playerController);
         if (!playerController.HasCargoObject())
         {
-            base.Interact(playerController);
-            LoadSceneManager.Instance.StartChangeScene();
+            if (WorldManager.Instance.isOpenLv2)
+            {
+                LoadSceneManager.Instance.StartChangeScene();
+            }
+            else
+            {
+                UIManager.Instance.ShowChangeConditionFeedback();
+            }
         }
         else
         {
-            Debug.LogWarning("Don't try to steal it!");
+            UIManager.Instance.FinishTheOrderFeedback();
         }
     }
 }
