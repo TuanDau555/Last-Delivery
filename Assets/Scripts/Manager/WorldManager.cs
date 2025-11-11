@@ -41,8 +41,9 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     
     void Start()
     {
-        DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
-        DeliveryManager.Instance.OnDeliverySuccess += NextDay;
+        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
+        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_NextDay;
+        DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
     }
 
     void Update()
@@ -62,8 +63,9 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
         if (DeliveryManager.Instance != null)
         {
-            DeliveryManager.Instance.OnDeliverySuccess -= AddMoney;
-            DeliveryManager.Instance.OnDeliverySuccess -= NextDay;
+            DeliveryManager.Instance.OnDeliverySuccess -= OnDeliverySuccess_AddMoney;
+            DeliveryManager.Instance.OnDeliverySuccess -= OnDeliverySuccess_NextDay;
+            DeliveryManager.Instance.OnDeliveryFail -= OnDeliveryFail_PenaltyMoney;
         }
     }
     
@@ -71,8 +73,9 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     {
         if (DeliveryManager.Instance != null)
         {
-            DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
-            DeliveryManager.Instance.OnDeliverySuccess += NextDay;
+            DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
+            DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_NextDay;
+            DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
         }
     }
     #endregion
@@ -81,16 +84,27 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// <summary>
     /// Event Add money
     /// </summary>
-    private void AddMoney(object sender, EventArgs e)
+    private void OnDeliverySuccess_AddMoney(object sender, DeliveryManager.OnDeliveryEventArgs e)
     {
-        _money += 10;
+        CargoObjectSO cargoSO = e.CargoObjectSO;
+
+        _money += cargoSO.cargoPrice;
         UpdateMoneyUI();
     }
 
+    private void OnDeliveryFail_PenaltyMoney(object sender, DeliveryManager.OnDeliveryEventArgs e)
+    {
+        CargoObjectSO cargoSO = e.CargoObjectSO;
+
+        _money -= cargoSO.penaltyPrice;
+        _money = Mathf.Max(0, _money); // To prevent negative number 
+        UpdateMoneyUI();
+    }    
+    
     /// <summary>
     /// Collect enough amount off money
     /// </summary>
-    private void NextDay(object sender, EventArgs e)
+    private void OnDeliverySuccess_NextDay(object sender, EventArgs e)
     {
         _currentDay++;
         UpdateDayUI();
