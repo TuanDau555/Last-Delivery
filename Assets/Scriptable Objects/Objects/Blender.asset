@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5f4afd38ffa6b141b700e7e6d30b0a5, type: 3}
-  m_Name: Test Object 1
+  m_Name: Blender
   m_EditorClassIdentifier: 
-  id: Test01
-  objectName: Test Object
+  id: Blender 02
+  objectName: Blender 02
   cargoOrderPrefab: {fileID: 6149381666265815060, guid: f3b369b714131d64883048ec9f63efea,
     type: 3}
-  cargoPrefab: {fileID: 2483189175824792161, guid: e81b027e698107a45868cc354f7f2cc8,
+  cargoPrefab: {fileID: 6368773933945275121, guid: c365e03712b8c414299cbe3a7c9189aa,
     type: 3}
   destination: {fileID: 4087721611419536472, guid: 403674d7d51e6b84fa7b846487771ab7,
     type: 3}

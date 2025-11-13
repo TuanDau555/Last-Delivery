@@ -1,6 +1,8 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -53,7 +55,6 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private Queue<Vector3> historicalVelocities;
 
     private Vector3 averageVelocity;
-    #endregion
 
     private CharacterController _controller;
     private InputManager _inputManager;
@@ -88,6 +89,8 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     public float _currentHealth { private get; set; }
 
     private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
+    #endregion
+
     #region Execute
     void Awake()
     {
@@ -105,6 +108,10 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         maxQueueSize = Mathf.CeilToInt(1f / historicalPositionInterval * historicalPositionDuration);
         historicalVelocities = new Queue<Vector3>(maxQueueSize);
+
+        if (SceneManager.GetActiveScene().buildIndex > 0)
+            DontDestroyOnLoad(this.gameObject);
+
     }
 
     void Start()
@@ -132,6 +139,16 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         ApplyFinalMovement();
 
         UpdateHistoricalPosition();
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoad_PlayerPosition;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoad_PlayerPosition;
     }
 
     void InitPlayerStat(CharacterStatsSO playerStats)
@@ -239,6 +256,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
      
         yield return new WaitForSeconds(buffDuration);
 
+        // Reset to base stat if it temporary buff
         _walkSpeed = playerStatsSO.stats.walkSpeed;
         _sprintSpeed = playerStatsSO.stats.sprintSpeed;
         buffCoroutine = null;
@@ -341,6 +359,33 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
                 playerCamera.transform.localPosition.z
             );
         }
+    }
+
+    private void OnSceneLoad_PlayerPosition(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(PlayerPosAfterLoadScene());
+    }
+
+    private IEnumerator PlayerPosAfterLoadScene()
+    {
+        if (_controller != null)
+            _controller.enabled = false;
+
+        // We must wait for game Load complete, then we're able set the position for player
+        yield return new WaitForSeconds(0.02f);
+
+        GameObject playerRoom = GameObject.Find("Player Room");
+        if (playerRoom != null)
+        {
+            transform.position = playerRoom.transform.position + Vector3.up * 1.3f;
+            Debug.Log("Set player pos");
+        }
+        else
+            Debug.LogWarning("Player Room not found!");
+
+        if (_controller != null)
+            _controller.enabled = true;
+        
     }
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion

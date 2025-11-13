@@ -35,7 +35,6 @@ public class ChaseState : EnemyBaseState
     public override void Update()
     {
         ChasePlayer();
-        InAttackRange();
     }
 
 
@@ -94,20 +93,6 @@ public class ChaseState : EnemyBaseState
 
         _navMeshAgent.SetDestination(targetPosition);
 
-    }
-    #endregion
-        
-    #region Change State
-    private void InAttackRange()
-    {
-        float distance = Vector3.Distance(_navMeshAgent.transform.position, _player.transform.position);
-
-        // In attack range => stop
-        if (distance <= _statsSO.stats.attackDistance)
-        {
-            _navMeshAgent.ResetPath();
-            return;
-        }
     }
     #endregion
 }

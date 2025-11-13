@@ -2,11 +2,13 @@ using System;
 using TMPro;
 using UnityEngine;
 
-public class WorldManager : Singleton<WorldManager>, ISaveable
+public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 {
-    #region KEYS
+    #region KEYS & NAME
     private const string CURRENT_MONEY = "CurrentMoney";
     private const string CURRENT_DAY = "CurrentDay";
+    private const string MONEY = "Money Count";
+    private const string DAYS = "Day Count";
     #endregion
 
     #region Parameters
@@ -21,11 +23,16 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     #endregion
 
     #region Execute
+    public override void Awake()
+    {
+        base.Awake();
+        RefreshUI();
+    }
+    
     void Start()
     {
         DeliveryManager.Instance.OnDeliverySuccess += AddMoney;
         DeliveryManager.Instance.OnDeliverySuccess += NextDay;
-        RefreshUI();
     }
 
     void Update()
@@ -98,6 +105,12 @@ public class WorldManager : Singleton<WorldManager>, ISaveable
     /// </summary>
     private void RefreshUI()
     {
+         if (currentDayText == null || currentMoneyText == null)
+        {
+            currentDayText = GameObject.Find(DAYS)?.GetComponent<TextMeshProUGUI>();
+            currentMoneyText = GameObject.Find(MONEY)?.GetComponent<TextMeshProUGUI>();
+        }
+        
         if (currentDayText != null)
             currentDayText.text = _currentDay.ToString();
         if (currentMoneyText != null)
