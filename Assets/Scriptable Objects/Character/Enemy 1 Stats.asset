@@ -23,13 +23,14 @@ MonoBehaviour:
     attackDistance: 2.5
     stoppingDistance: 0
     lostSightDelay: 2
+    lookSpeed: 5
     targetMask:
       serializedVersion: 2
       m_Bits: 256
     obstructionMask:
       serializedVersion: 2
       m_Bits: 512
-    attackDamage: 0
+    attackDamage: 2
     timeBetweenAttacks: 0
     movePredictionThreshold: 0
     movePredictionTime: 1
