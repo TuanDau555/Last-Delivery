@@ -247,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f92ad72d36fc12a41854fada9b7b70c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseInteract: {fileID: 0}
+  baseInteract: {fileID: 3089331214370232225}
   selectedVisualArray:
   - {fileID: 3884212062776634882}
   - {fileID: 1748638477590411043}

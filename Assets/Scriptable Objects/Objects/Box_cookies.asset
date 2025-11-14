@@ -15,9 +15,10 @@ MonoBehaviour:
   id: Box_cookies
   objectName: Box_cookies
   isLostItem: 1
+  cargoPrice: 10
+  penaltyPrice: 20
   cargoOrderPrefab: {fileID: 5137249799031490220, guid: fd36e152983f0bc4bbda865ec34e4382,
     type: 3}
   cargoPrefab: {fileID: 4264750331346254744, guid: 47698ee99904ded4cae392c37cc78b45,
     type: 3}
-  destination: {fileID: 0}
   cargoOrderSprite: {fileID: 0}

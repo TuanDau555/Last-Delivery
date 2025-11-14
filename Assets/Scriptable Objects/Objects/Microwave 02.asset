@@ -15,9 +15,10 @@ MonoBehaviour:
   id: Microwave02
   objectName: Microwave02
   isLostItem: 1
+  cargoPrice: 26
+  penaltyPrice: 0
   cargoOrderPrefab: {fileID: 289371399103547055, guid: 8a13fea538e5ee441b169799e5ffb44f,
     type: 3}
   cargoPrefab: {fileID: 54552832729542708, guid: 9ab444a3ac6fee64aa9650ac40b3107a,
     type: 3}
-  destination: {fileID: 0}
   cargoOrderSprite: {fileID: 0}

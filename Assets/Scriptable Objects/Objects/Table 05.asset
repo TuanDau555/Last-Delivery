@@ -15,9 +15,10 @@ MonoBehaviour:
   id: Table05
   objectName: Table05
   isLostItem: 1
+  cargoPrice: 35
+  penaltyPrice: 45
   cargoOrderPrefab: {fileID: 8666877195588271723, guid: 926e518a6579fbc43afcdf37ee75179a,
     type: 3}
   cargoPrefab: {fileID: 302620009381625629, guid: 9a4e20763c71c8047a2f3c120309f0b0,
     type: 3}
-  destination: {fileID: 0}
   cargoOrderSprite: {fileID: 0}

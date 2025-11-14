@@ -496,4 +496,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placePoint: {fileID: 0}
-  cargoObjectSO: {fileID: 0}
+  cargoObjectSO: {fileID: 11400000, guid: 74631f7a756717a40b4047066a9dc88b, type: 2}

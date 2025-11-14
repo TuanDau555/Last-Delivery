@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Blender 02
   objectName: Blender 02
+  isLostItem: 0
+  cargoPrice: 50
+  penaltyPrice: 20
   cargoOrderPrefab: {fileID: 6149381666265815060, guid: f3b369b714131d64883048ec9f63efea,
     type: 3}
   cargoPrefab: {fileID: 2377634603669225278, guid: 487aadc8a5bb7ac439888c8973eb4eb0,
-    type: 3}
-  destination: {fileID: 4087721611419536472, guid: 403674d7d51e6b84fa7b846487771ab7,
     type: 3}
   cargoOrderSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}

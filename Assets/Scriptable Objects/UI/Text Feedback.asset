@@ -19,3 +19,5 @@ MonoBehaviour:
   wrongDeliveryFeedback: Wrong Order!
   alreadyDeliverObjectFeedback: This order has already deliveried.
   finishTheOrderFeedback: Don't try to steal it.
+  notEnoughMoney: You don't have enough money to pass this day!
+  nextDayCongratulation: Congratulation you did great yesterday!

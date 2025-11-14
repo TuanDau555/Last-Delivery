@@ -15,9 +15,10 @@ MonoBehaviour:
   id: Radio
   objectName: Radio
   isLostItem: 1
+  cargoPrice: 27
+  penaltyPrice: 24
   cargoOrderPrefab: {fileID: 4528037575392015967, guid: 1f53de64520c9304dadbb4ae551571a4,
     type: 3}
   cargoPrefab: {fileID: 718425181892082248, guid: c5f7f76aa6ec890478fabdfe85cd5a2c,
     type: 3}
-  destination: {fileID: 0}
   cargoOrderSprite: {fileID: 0}

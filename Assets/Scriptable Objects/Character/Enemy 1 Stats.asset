@@ -15,14 +15,15 @@ MonoBehaviour:
   stats:
     statsName: Enemy 1
     patrolWaiting: 1
-    waitTime: 2
+    waitTime: 2.5
     walkSpeed: 5
     chaseSpeed: 8
     radius: 15
     angle: 145
     attackDistance: 2.5
     stoppingDistance: 0
-    lostSightDelay: 2
+    lostSightDelay: 3
+    lookSpeed: 5
     targetMask:
       serializedVersion: 2
       m_Bits: 256
