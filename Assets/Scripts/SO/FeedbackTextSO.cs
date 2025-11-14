@@ -23,4 +23,12 @@ public class FeedbackTextSO : ScriptableObject
     [TextArea(3, 10)]
     [Tooltip("Player can't bring order when delivery")]
     public string finishTheOrderFeedback;
+    
+    [TextArea(3,10)]
+    [Tooltip("Player need to collect enough money to go to next Day")]
+    public string notEnoughMoney;
+
+    [TextArea(3, 10)]
+    [Tooltip("Congratulation to player when complete one day")]
+    public string nextDayCongratulation;
 }

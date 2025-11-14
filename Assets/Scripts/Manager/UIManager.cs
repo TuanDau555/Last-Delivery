@@ -106,6 +106,27 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
     
+    public void NotEnoughMoney()
+    {
+        if (feedbackPanel == null || feedbackText == null) return;
+
+        feedbackText.text = feedbackTextSO.notEnoughMoney;
+
+        feedbackPanel.SetActive(true);
+
+        StartCountDown();
+    }
+    public void NextDayWelcome()
+    {
+        if (feedbackPanel == null || feedbackText == null) return;
+
+        feedbackText.text = feedbackTextSO.nextDayCongratulation;
+
+        feedbackPanel.SetActive(true);
+
+        StartCountDown();
+    }
+    
     private void HideFeedback()
     {
         if (feedbackPanel != null)
