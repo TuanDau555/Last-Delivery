@@ -4,6 +4,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
+    [Tooltip("Area that Enemy Patrol")]
+    [SerializeField] private Transform patrolRegion;
     [SerializeField] private EnemyStatsSO enemyStatsSO;
     [SerializeField] private NavMeshAgent enemyAgent;
     private const string TAG = "Player";
@@ -53,7 +55,7 @@ public class Enemy : MonoBehaviour
     void EnemyState(Enemy enemy, NavMeshAgent agent, StateMachine stateMachine, PlayerController player, FieldOfView fov)
     {
 
-        var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
+        var patrolState = new PatrolState(enemy, agent, enemyStatsSO, patrolRegion);
         var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
         var attackState = new AttackState(enemy, agent, fov, player, enemyStatsSO);
 
