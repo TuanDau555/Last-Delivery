@@ -8,6 +8,7 @@ public class CatAgent : BaseInteract, ISaveable
 {
     #region KEYS
     private const string CAT_MOOD = "CatMood";
+    private const string IS_DELIVERY = "isDelivery";
     #endregion
     
     #region Parameter
@@ -26,14 +27,22 @@ public class CatAgent : BaseInteract, ISaveable
 
     private StateMachine _stateMachine;
     private bool _isDelivery;
-    private float currentMoodBar;
+    public float currentMoodBar { get; set; }
     #endregion
 
     #region Execute
+
+    void Awake()
+    {
+        playerTransform = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().transform;
+        catMoodBar = GameObject.Find("Mood Slider").GetComponent<Slider>();
+    }
     void Start()
     {
         _stateMachine = new StateMachine();
         CatState(this, catAgent, _stateMachine);
+        
+        
         DeliveryManager.Instance.OnStartDelivery += Delivery_OnStartDelivery;
         DeliveryManager.Instance.OnStopDelivery += Delivery_OnStopDelivery;
 
@@ -139,7 +148,7 @@ public class CatAgent : BaseInteract, ISaveable
 
     void UpdateMood()
     {
-        if (catMoodBar.value >= 0)
+        if (catMoodBar.value >= 0 && _isDelivery)
             catMoodBar.value -= Time.deltaTime * 2;
     }
 
@@ -149,10 +158,8 @@ public class CatAgent : BaseInteract, ISaveable
         catMoodBar.value = currentMoodBar;
     }
 
-    public void UpgradeMaxMood(float upgradeValue)
+    public void UpdateMoodBar()
     {
-        catMoodBar.maxValue += upgradeValue;
-        currentMoodBar = catMoodBar.maxValue;
         catMoodBar.value = currentMoodBar;
     }
     #endregion
@@ -161,11 +168,13 @@ public class CatAgent : BaseInteract, ISaveable
     public void Save(SaveData data)
     {
         data.Set(CAT_MOOD, catMoodBar.value);
+        // data.Set(IS_DELIVERY, false);
     }
     
     public void Load(SaveData data)
     {
         catMoodBar.value = data.Get<float>(CAT_MOOD, catMoodBar.value);
+        // _isDelivery = data.Get<bool>(IS_DELIVERY, false);
     }
     #endregion
     

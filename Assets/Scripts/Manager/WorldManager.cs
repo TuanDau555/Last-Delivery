@@ -19,15 +19,22 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     [SerializeField] public int _money;
     [SerializeField] private int _currentDay;
     [SerializeField] private int _itemLostCount;
+    private int _minMoneyToNextDay = 50; // Số tiền tối thiểu (mặc định là 50)
+    private const int k_baseAmount = 50;
+    private const float k_growRate = 1.25f;
     private int currentLevel;
 
     [Space(10)]
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI currentDayText;
     [SerializeField] private TextMeshProUGUI currentMoneyText;
+    [SerializeField] private TextMeshProUGUI minMoneyToNextDayText;
     [SerializeField] private GameObject lostObjectUI;
     [SerializeField] private TextMeshProUGUI itemLostCountText;
     [SerializeField] private TextMeshProUGUI totalItemCountText;
+
+    private PlayerController player;
+    private CatAgent catAgent;
 
     public bool isOpenLv2 { get; private set; }
     #endregion
@@ -36,14 +43,15 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     public override void Awake()
     {
         base.Awake();
+
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        catAgent = GameObject.Find("Cat Agent").GetComponent<CatAgent>();
+        
         RefreshUI();
     }
     
     void Start()
     {
-        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
-        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_NextDay;
-        DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
     }
 
     void Update()
@@ -53,31 +61,31 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
     void OnEnable()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        //SceneManager.sceneLoaded += OnSceneLoaded;
+        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
+        DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
     }
 
 
     void OnDisable()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        //SceneManager.sceneLoaded -= OnSceneLoaded;
 
         if (DeliveryManager.Instance != null)
         {
             DeliveryManager.Instance.OnDeliverySuccess -= OnDeliverySuccess_AddMoney;
-            DeliveryManager.Instance.OnDeliverySuccess -= OnDeliverySuccess_NextDay;
             DeliveryManager.Instance.OnDeliveryFail -= OnDeliveryFail_PenaltyMoney;
         }
     }
     
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (DeliveryManager.Instance != null)
-        {
-            DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
-            DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_NextDay;
-            DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
-        }
-    }
+    // private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    // {
+    //     if (DeliveryManager.Instance != null)
+    //     {
+    //         DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
+    //         DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
+    //     }
+    // }
     #endregion
 
     #region Update World
@@ -104,11 +112,32 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// <summary>
     /// Collect enough amount off money
     /// </summary>
-    private void OnDeliverySuccess_NextDay(object sender, EventArgs e)
+    public bool TryNextDay()
     {
-        _currentDay++;
-        UpdateDayUI();
-        RefreshUI();
+        if(_money >= _minMoneyToNextDay)
+        {
+            _currentDay++;
+            _itemLostCount = 0;
+           SpendMoney(_minMoneyToNextDay);
+
+            Debug.Log(catAgent.currentMoodBar);
+
+            player._currentHealth += 100;
+            catAgent.currentMoodBar += 100;
+            catAgent.UpdateMoodBar();
+
+            UpdateMoneyUI();
+            UpdateDayUI();
+            UpdateLostUI();
+            RefreshUI();
+
+            SaveManager.Instance.SaveCheckpoint();
+
+            _minMoneyToNextDay = Mathf.RoundToInt(k_baseAmount * Mathf.Pow(k_growRate, _currentDay - 1));
+            
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -185,7 +214,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     private void UpdateMoneyUI()
     {
         if (currentMoneyText != null)
-            currentMoneyText.text = _money.ToString();
+            currentMoneyText.text = _money.ToString() + "/" + _minMoneyToNextDay.ToString();
     }
 
     private void UpdateDayUI()
