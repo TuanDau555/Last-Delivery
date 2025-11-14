@@ -18,11 +18,6 @@ public class FieldOfView : MonoBehaviour
     public bool inAttackRange { get; private set; }
     public Vector3 directionToTarget { get; private set; }
 
-    void Awake()
-    {
-        playerRef = GameObject.FindObjectOfType<PlayerController>()?.transform;
-    }
-
     void Start()
     {
         // Init Enemy Stats
@@ -31,6 +26,7 @@ public class FieldOfView : MonoBehaviour
         _attackRange = enemyStatsSO.stats.attackDistance;
 
         StartCoroutine(FOVRoutine());
+        StartCoroutine(FindPlayerRoutine());
     }
 
     private IEnumerator FOVRoutine()
@@ -41,6 +37,15 @@ public class FieldOfView : MonoBehaviour
         {
             yield return wait;
             FieldOfViewCheck(fovCheckInterval);
+        }
+    }
+
+    private IEnumerator FindPlayerRoutine()
+    {
+        while (playerRef == null)
+        {
+            playerRef = FindObjectOfType<PlayerController>()?.transform;
+            yield return new WaitForSeconds(0.2f);
         }
     }
 
