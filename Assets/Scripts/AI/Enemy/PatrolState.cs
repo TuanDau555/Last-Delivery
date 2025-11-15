@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,6 +9,7 @@ public class PatrolState : EnemyBaseState
 
     private NavMeshAgent _navMeshAgent;
     private ConnectedWayPoint _currentWaypoint, _previousWaypoint;
+    private Transform patrolArea;
     private EnemyStatsSO _statsSO;
 
     private bool _isTraveling;
@@ -15,21 +17,23 @@ public class PatrolState : EnemyBaseState
     private float _waitTimer;
     private int _waypointVisited;
     private readonly Vector3 startPoint;
-    public PatrolState(Enemy enemy, NavMeshAgent agent, EnemyStatsSO statsSO) : base(enemy)
+    public PatrolState(Enemy enemy, Animator animator, NavMeshAgent agent, EnemyStatsSO statsSO, Transform patrolRegion) : base(enemy, animator)
     {
         this.startPoint = enemy.transform.position;
         this._navMeshAgent = agent;
         this._statsSO = statsSO;
+        this.patrolArea = patrolRegion;
     }
     #endregion
 
     #region Execute
     public override void OnEnter()
     {
+        animator.CrossFade(PatrolHash, crossFadeDuration);
         Debug.Log("Enemy is patrol");
         InitializeAgent();
 
-        FindDestination();
+        // FindDestination();
     }
 
     public override void OnExit()
@@ -62,8 +66,21 @@ public class PatrolState : EnemyBaseState
         if (_currentWaypoint == null)
         {
             // Grab all waypoint in the Scene
-            GameObject[] waypoints = GameObject.FindGameObjectsWithTag(TAG);
+            GameObject[] waypoints;
 
+            if (patrolArea != null)
+            {
+                waypoints = patrolArea
+                    .GetComponentsInChildren<ConnectedWayPoint>()
+                    .Select(wp => wp.gameObject)
+                    .ToArray();
+            }
+            else
+            {
+                // fall back if forget to assign in Inspector
+                waypoints = GameObject.FindGameObjectsWithTag(TAG);
+            }
+            
             if (waypoints.Length > 0)
             {
                 while (_currentWaypoint == null)
@@ -99,6 +116,8 @@ public class PatrolState : EnemyBaseState
 
             if (_statsSO.stats.patrolWaiting) // pass from Stats SO
             {
+                animator.CrossFade(IdleHash, crossFadeDuration);
+                
                 _isWaiting = true; // go to wait condition logic...
                 _waitTimer = 0f; // reset the wait count
             }
@@ -117,6 +136,7 @@ public class PatrolState : EnemyBaseState
             if (_waitTimer >= _statsSO.stats.waitTime)
             {
                 _isWaiting = false;
+                animator.CrossFade(PatrolHash, crossFadeDuration);
                 FindDestination();
             }
         }

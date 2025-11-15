@@ -24,7 +24,6 @@ public class CargoObject : MonoBehaviour
 
         if (objectParent.HasCargoObject())
         {
-            Debug.LogWarning($"{objectParent} already has a object assigned. Cannot assign a new one");
             return;
         }
 

@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     public float _walkSpeed { private get; set; }
     public float _sprintSpeed { private get; set; }
     public float _crouchSpeed { private get; set; }
-    public float _currentHealth { private get; set; }
+    public float _currentHealth {  get; set; }
 
     private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #endregion

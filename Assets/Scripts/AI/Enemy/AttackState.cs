@@ -11,7 +11,7 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Constructor
-    public AttackState(Enemy enemy, NavMeshAgent agent, FieldOfView fov, PlayerController player, EnemyStatsSO statsSO) : base(enemy)
+    public AttackState(Enemy enemy, Animator animator, NavMeshAgent agent, FieldOfView fov, PlayerController player, EnemyStatsSO statsSO) : base(enemy, animator)
     {
         // TODO: Add EnemyStatsSO, PlayerController, FOV to constructor
         this._navMeshAgent = agent;
@@ -24,6 +24,8 @@ public class AttackState : EnemyBaseState
     #region Execute
     public override void OnEnter()
     {
+        animator.CrossFade(AttackHash, crossFadeDuration);
+        
         base.OnEnter();
         Debug.Log("Enemy is attacking");
     }

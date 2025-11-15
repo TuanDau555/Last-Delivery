@@ -29,6 +29,8 @@ public class InputManager : SingletonPersistent<InputManager>
     public Vector2 GetMouseDelta() => playerInput.Player.Look.ReadValue<Vector2>();
     public bool IsSprinting() => playerInput.Player.Sprint.ReadValue<float>() > 0f; // Player have to move to Sprint
     public bool IsCrouch() => playerInput.Player.Crouch.WasPressedThisFrame();
+    public bool IsOpenFlashLight() => playerInput.Player.FlashLight.WasPressedThisFrame();
+    public bool IsPause() => playerInput.Player.PauseGame.WasPressedThisFrame();
     private void Interact_Performed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         OnInteractAction?.Invoke(this, EventArgs.Empty);

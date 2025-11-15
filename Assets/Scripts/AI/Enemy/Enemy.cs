@@ -4,8 +4,11 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
+    [Tooltip("Area that Enemy Patrol")]
+    [SerializeField] private Transform patrolRegion;
     [SerializeField] private EnemyStatsSO enemyStatsSO;
     [SerializeField] private NavMeshAgent enemyAgent;
+    [SerializeField] private Animator animator;
     private const string TAG = "Player";
     private StateMachine _stateMachine;
     PlayerController _player;
@@ -19,6 +22,7 @@ public class Enemy : MonoBehaviour
         _stateMachine = new StateMachine();
 
         _player = GameObject.FindGameObjectWithTag(TAG).GetComponent<PlayerController>();
+        animator = GetComponent<Animator>();
         _fov = GetComponent<FieldOfView>();
         
         EnemyState(this, enemyAgent, _stateMachine, _player, _fov);
@@ -53,9 +57,9 @@ public class Enemy : MonoBehaviour
     void EnemyState(Enemy enemy, NavMeshAgent agent, StateMachine stateMachine, PlayerController player, FieldOfView fov)
     {
 
-        var patrolState = new PatrolState(enemy, agent, enemyStatsSO);
-        var chaseState = new ChaseState(enemy, agent, player, fov, enemyStatsSO);
-        var attackState = new AttackState(enemy, agent, fov, player, enemyStatsSO);
+        var patrolState = new PatrolState(enemy, animator, agent, enemyStatsSO, patrolRegion);
+        var chaseState = new ChaseState(enemy, animator, agent, player, fov, enemyStatsSO);
+        var attackState = new AttackState(enemy, animator, agent, fov, player, enemyStatsSO);
 
         Any(patrolState, new FuncPredicate(() => !fov.canSeePlayer));
         At(patrolState, chaseState, new FuncPredicate(() => fov.canSeePlayer));

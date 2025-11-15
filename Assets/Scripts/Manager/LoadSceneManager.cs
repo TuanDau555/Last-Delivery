@@ -52,6 +52,11 @@ public class LoadSceneManager : SingletonPersistent<LoadSceneManager>
             Debug.Log("loading: " + asyncLoad.progress + "%");
             yield return null;
         }
+        
+        if (WorldManager.Instance.isOpenLv2 && SceneManager.GetActiveScene().name == "Lv2")
+        {
+            DeliveryManager.Instance.SpawnLostItems();
+        }
         // TODO: Fade out
     }
     #endregion

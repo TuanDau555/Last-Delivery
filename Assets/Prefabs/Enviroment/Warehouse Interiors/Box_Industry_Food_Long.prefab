@@ -68,6 +68,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Box_Industry_Food_Long
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 26dea0513fdfd724e8a3c911567b4715,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
