@@ -16,8 +16,8 @@ MonoBehaviour:
     statsName: Enemy 1
     patrolWaiting: 1
     waitTime: 2.5
-    walkSpeed: 5
-    chaseSpeed: 8
+    walkSpeed: 2
+    chaseSpeed: 5
     radius: 15
     angle: 145
     attackDistance: 2.5
