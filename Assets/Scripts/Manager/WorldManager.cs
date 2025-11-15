@@ -61,9 +61,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
     void OnEnable()
     {
-        //SceneManager.sceneLoaded += OnSceneLoaded;
-        DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
-        DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
 
@@ -78,14 +76,17 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         }
     }
     
-    // private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    // {
-    //     if (DeliveryManager.Instance != null)
-    //     {
-    //         DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
-    //         DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
-    //     }
-    // }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (DeliveryManager.Instance != null)
+        {
+            DeliveryManager.Instance.OnDeliverySuccess -= OnDeliverySuccess_AddMoney;
+            DeliveryManager.Instance.OnDeliveryFail -= OnDeliveryFail_PenaltyMoney;
+            
+            DeliveryManager.Instance.OnDeliverySuccess += OnDeliverySuccess_AddMoney;
+            DeliveryManager.Instance.OnDeliveryFail += OnDeliveryFail_PenaltyMoney;
+        }
+    }
     #endregion
 
     #region Update World
