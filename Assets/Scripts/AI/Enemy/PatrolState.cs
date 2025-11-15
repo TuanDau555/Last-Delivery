@@ -17,7 +17,7 @@ public class PatrolState : EnemyBaseState
     private float _waitTimer;
     private int _waypointVisited;
     private readonly Vector3 startPoint;
-    public PatrolState(Enemy enemy, NavMeshAgent agent, EnemyStatsSO statsSO, Transform patrolRegion) : base(enemy)
+    public PatrolState(Enemy enemy, Animator animator, NavMeshAgent agent, EnemyStatsSO statsSO, Transform patrolRegion) : base(enemy, animator)
     {
         this.startPoint = enemy.transform.position;
         this._navMeshAgent = agent;
@@ -29,6 +29,7 @@ public class PatrolState : EnemyBaseState
     #region Execute
     public override void OnEnter()
     {
+        animator.CrossFade(PatrolHash, crossFadeDuration);
         Debug.Log("Enemy is patrol");
         InitializeAgent();
 
@@ -115,6 +116,8 @@ public class PatrolState : EnemyBaseState
 
             if (_statsSO.stats.patrolWaiting) // pass from Stats SO
             {
+                animator.CrossFade(IdleHash, crossFadeDuration);
+                
                 _isWaiting = true; // go to wait condition logic...
                 _waitTimer = 0f; // reset the wait count
             }
@@ -133,6 +136,7 @@ public class PatrolState : EnemyBaseState
             if (_waitTimer >= _statsSO.stats.waitTime)
             {
                 _isWaiting = false;
+                animator.CrossFade(PatrolHash, crossFadeDuration);
                 FindDestination();
             }
         }

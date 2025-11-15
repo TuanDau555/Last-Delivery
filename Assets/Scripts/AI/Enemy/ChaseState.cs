@@ -14,7 +14,7 @@ public class ChaseState : EnemyBaseState
     #endregion
 
     #region Constructor 
-    public ChaseState(Enemy enemy, NavMeshAgent agent, PlayerController player, FieldOfView fov, EnemyStatsSO statsSO) : base(enemy)
+    public ChaseState(Enemy enemy, Animator animator, NavMeshAgent agent, PlayerController player, FieldOfView fov, EnemyStatsSO statsSO) : base(enemy, animator)
     {
         this._navMeshAgent = agent;
         this._player = player;
@@ -26,6 +26,8 @@ public class ChaseState : EnemyBaseState
     #region Execute
     public override void OnEnter()
     {
+        animator.CrossFade(ChaseHash, crossFadeDuration);
+           
         Debug.Log($"{enemy.name} is chasing");
         InitializeAgent();
 
