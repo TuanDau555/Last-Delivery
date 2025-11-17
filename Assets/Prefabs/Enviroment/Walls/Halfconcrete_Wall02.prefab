@@ -8,6 +8,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9197548093805884541, guid: 81ba62a5a721d96419226e1f410e802a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: -9083636053972491441, guid: 81ba62a5a721d96419226e1f410e802a,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -73,10 +78,20 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 76fdcf2d23cf56240a9e4c5ab5ed48f0, type: 2}
+    - target: {fileID: -5282084460359750142, guid: 81ba62a5a721d96419226e1f410e802a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 81ba62a5a721d96419226e1f410e802a,
         type: 3}
       propertyPath: m_Name
       value: Halfconcrete_Wall02
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 81ba62a5a721d96419226e1f410e802a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 81ba62a5a721d96419226e1f410e802a,
         type: 3}
@@ -103,6 +118,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 76fdcf2d23cf56240a9e4c5ab5ed48f0, type: 2}
+    - target: {fileID: 8745377261798348994, guid: 81ba62a5a721d96419226e1f410e802a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 8790727478112003387, guid: 81ba62a5a721d96419226e1f410e802a,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

@@ -9,16 +9,24 @@ public class FieldOfView : MonoBehaviour
 
     private float _lostSightTimer;
     private float fovCheckInterval = 0.2f;
+    [SerializeField] private Collider[] rangeChecks;
 
     public float _viewRadius { private get; set; }
     public float _viewAngle { private get; set; }
+    public float _attackRange { private get; set; }
     public bool canSeePlayer { get; private set; }
+    public bool inAttackRange { get; private set; }
+    public Vector3 directionToTarget { get; private set; }
 
     void Start()
     {
+        // Init Enemy Stats
         _viewRadius = enemyStatsSO.stats.radius;
         _viewAngle = enemyStatsSO.stats.angle;
+        _attackRange = enemyStatsSO.stats.attackDistance;
+
         StartCoroutine(FOVRoutine());
+        StartCoroutine(FindPlayerRoutine());
     }
 
     private IEnumerator FOVRoutine()
@@ -32,29 +40,49 @@ public class FieldOfView : MonoBehaviour
         }
     }
 
+    private IEnumerator FindPlayerRoutine()
+    {
+        while (playerRef == null)
+        {
+            playerRef = FindObjectOfType<PlayerController>()?.transform;
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
     private void FieldOfViewCheck(float delta)
     {
 
         // Reset flag this tick; will be set true again if we find valid sight
         bool sawTargetThisCheck = false;
-        
+        inAttackRange = false;
+
         // Get all targets in view radius (It just player by the way XD)
-        Collider[] rangeChecks = Physics.OverlapSphere(transform.position, _viewRadius, enemyStatsSO.stats.targetMask);
+        rangeChecks = Physics.OverlapSphere(transform.position, _viewRadius, enemyStatsSO.stats.targetMask);
 
         // if found something in the range
         if (rangeChecks.Length != 0)
         {
             Transform target = rangeChecks[0].transform;
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
+
+            directionToTarget = (target.position - transform.position).normalized;
+            float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+            bool isBlocked = Physics.Raycast(transform.position, directionToTarget, distanceToTarget, enemyStatsSO.stats.obstructionMask);
+
+            // Attack if in range
+            if (distanceToTarget <= _attackRange && !isBlocked)
+            {
+                canSeePlayer = true;
+                inAttackRange = true;
+            }
 
             // Check if the target is in the angle of view
             // We dived angle by 2 because we want to get half of the angle to check both side
             if (Vector3.Angle(transform.forward, directionToTarget) < _viewAngle / 2)
             {
-                float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
                 // if no obstruction infront of the enemy
-                if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, enemyStatsSO.stats.obstructionMask))
+                if (!isBlocked)
                 {
                     sawTargetThisCheck = true;
                     _lostSightTimer = 0f; // reset the timer
@@ -64,24 +92,10 @@ public class FieldOfView : MonoBehaviour
                         Debug.Log($"{gameObject.name} gained sight of {playerRef.name}");
                     }
                 }
-                else
-                {
-                    Debug.Log("Block by obstruction");
-                }
             }
-            else
-            {
-                Debug.Log("Not in cone angle");
-            }
-        }
-        // make sure Enemy can't see player at Start
-        // And when player out of range
-        else
-        {
-            Debug.Log($"{playerRef.name} has out of {gameObject.name} range");
         }
 
-        if (!sawTargetThisCheck)
+        if (!sawTargetThisCheck && !inAttackRange)
         {
             _lostSightTimer += delta;
 
@@ -102,7 +116,8 @@ public class FieldOfView : MonoBehaviour
     {
         Handles.color = Color.yellow;
         Handles.DrawWireArc(transform.position, Vector3.up, Vector3.forward, 360, _viewRadius);
-
+        Handles.DrawWireArc(transform.position, Vector3.up, Vector3.forward, 360, _attackRange);
+        
         Vector3 viewAngleA = DirFromAngle(transform.eulerAngles.y, -_viewAngle / 2);
         Vector3 viewAngleB = DirFromAngle(transform.eulerAngles.y, _viewAngle / 2);
 

@@ -35,7 +35,6 @@ public class DeliveryTable : BaseInteract
             else
             {
                 DeliveryManager.Instance.TriggerDeliveryFail(cargoObjectSO, this);
-                Debug.LogWarning("Wrong Delivery expected order is: " + _expectedCargo);
             }
         }
     }

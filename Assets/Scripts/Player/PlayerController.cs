@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
@@ -19,8 +22,9 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     [SerializeField] private Transform playerCamera;
 
     [Space(10)]
-    [Header("Hold Point")]
+    [Header("UI/Display")]
     [SerializeField] private Transform holdPoint;
+    [SerializeField] private Slider playerHealthBar;
 
     [Space(10)]
     [Header("Check ground")]
@@ -47,7 +51,6 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private Queue<Vector3> historicalVelocities;
 
     private Vector3 averageVelocity;
-    #endregion
 
     private CharacterController _controller;
     private InputManager _inputManager;
@@ -61,13 +64,29 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private Vector2 _moveInput;
     private Vector3 _mouseDirection;
     private Vector2 _mouseDelta;
+    private Coroutine buffCoroutine;
 
     // I set it true at init because...
     // ...I want to make the player to be able crouching immediately at the beginning of the game
     private bool isCrouching = true;
     private bool isTransition;
 
+    private float _walkBobAmount;
+    private float _sprintBobAmount;
+    private float _crouchBobAmount;
+    private float _walkBobSpeed;
+    private float _sprintBobSpeed;
+    private float _crouchBobSpeed;
+    
+
+    public float _walkSpeed { private get; set; }
+    public float _sprintSpeed { private get; set; }
+    public float _crouchSpeed { private get; set; }
+    public float _currentHealth {  get; set; }
+
     private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
+    #endregion
+
     #region Execute
     void Awake()
     {
@@ -85,12 +104,18 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         maxQueueSize = Mathf.CeilToInt(1f / historicalPositionInterval * historicalPositionDuration);
         historicalVelocities = new Queue<Vector3>(maxQueueSize);
+
+        if (SceneManager.GetActiveScene().buildIndex > 0)
+            DontDestroyOnLoad(this.gameObject);
+
     }
 
     void Start()
     {
         _inputManager = InputManager.Instance;
         playerCamera = Camera.main.transform;
+
+        InitPlayerStat(playerStatsSO);
     }
 
     void Update()
@@ -107,6 +132,36 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         UpdateHistoricalPosition();
     }
 
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoad_PlayerPosition;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoad_PlayerPosition;
+    }
+
+    void InitPlayerStat(CharacterStatsSO playerStats)
+    {   
+        // Move
+        _walkSpeed = playerStats.stats.walkSpeed;
+        _sprintSpeed = playerStats.stats.sprintSpeed;
+        _crouchSpeed = playerStats.stats.crouchSpeed;
+
+        // Head Bob
+        _walkBobAmount = playerStats.stats.walkBobAmount;
+        _walkBobSpeed = playerStats.stats.walkBobSpeed;
+        _sprintBobAmount = playerStats.stats.sprintBobAmount;
+        _sprintBobSpeed = playerStats.stats.sprintBobSpeed;
+        _crouchBobAmount = playerStats.stats.crouchBobAmount;
+        _crouchBobSpeed = playerStats.stats.crouchBobSpeed;
+        
+        // Health and Stamina
+        playerHealthBar.maxValue = playerStats.stats.HP;
+        _currentHealth = playerHealthBar.maxValue;
+        playerHealthBar.value = _currentHealth;
+    }
     #endregion
 
     #region Get Input 
@@ -139,25 +194,34 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     {
         if (!IsGround()) return;
 
-        float _walkBobAmount = playerStatsSO.stats.walkBobAmount;
-        float _sprintBobAmount = playerStatsSO.stats.sprintBobAmount;
-        float _crouchBobAmount = playerStatsSO.stats.crouchBobAmount;
+        HeadBobbing(_walkBobSpeed, _crouchBobSpeed, _sprintBobSpeed, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
+    }
+    #endregion
 
-        float _walk = playerStatsSO.stats.walkBobSpeed;
-        float _sprint = playerStatsSO.stats.sprintBobSpeed;
-        float _crouch = playerStatsSO.stats.crouchBobSpeed;
+    #region Buff
+    public void ApplyBuff(float buffDuration, float speedAmount, float hpAmount)
+    {
+        buffCoroutine = StartCoroutine(BuffCoroutine(buffDuration, speedAmount, hpAmount));
+    }
+    
+    private IEnumerator BuffCoroutine(float buffDuration, float speedAmount, float hpAmount)
+    {
+        _walkSpeed *= (1 + speedAmount / 100f);
+        _sprintSpeed *= (1 + speedAmount / 100f);
+     
+        yield return new WaitForSeconds(buffDuration);
 
-        HeadBobbing(_walk, _crouch, _sprint, _walkBobAmount, _crouchBobAmount, _sprintBobAmount);
+        // Reset to base stat if it temporary buff
+        _walkSpeed = playerStatsSO.stats.walkSpeed;
+        _sprintSpeed = playerStatsSO.stats.sprintSpeed;
+        buffCoroutine = null;
+        Debug.Log("Buff End");
     }
     #endregion
 
     #region Final Calculate        
     private void ApplyFinalMovement()
     {
-        float walk = playerStatsSO.stats.walkSpeed;
-        float sprint = playerStatsSO.stats.sprintSpeed;
-        float crouch = playerStatsSO.stats.crouchSpeed;
-
         if (IsGround() && _playerVelocity.y < 0)
         {
             // reset Y velocity
@@ -169,7 +233,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         // if crouch using crouchSpeed else just use walk speed
         // NOTE: we don't want to sprint when crouch
-        float finalSpeed = !isCrouching ? crouch : _inputManager.IsSprinting() ? sprint : walk;
+        float finalSpeed = !isCrouching ? _crouchSpeed : _inputManager.IsSprinting() ? _sprintSpeed : _walkSpeed;
 
         // Apply movement
         Vector3 finalMove = (_moveDirection * finalSpeed) + (_playerVelocity.y * Vector3.up);
@@ -250,6 +314,33 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
                 playerCamera.transform.localPosition.z
             );
         }
+    }
+
+    private void OnSceneLoad_PlayerPosition(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(PlayerPosAfterLoadScene());
+    }
+
+    private IEnumerator PlayerPosAfterLoadScene()
+    {
+        if (_controller != null)
+            _controller.enabled = false;
+
+        // We must wait for game Load complete, then we're able set the position for player
+        yield return new WaitForSeconds(0.02f);
+
+        GameObject playerRoom = GameObject.Find("Player Room");
+        if (playerRoom != null)
+        {
+            transform.position = playerRoom.transform.position + Vector3.up * 1.3f;
+            Debug.Log("Set player pos");
+        }
+        else
+            Debug.LogWarning("Player Room not found!");
+
+        if (_controller != null)
+            _controller.enabled = true;
+        
     }
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion

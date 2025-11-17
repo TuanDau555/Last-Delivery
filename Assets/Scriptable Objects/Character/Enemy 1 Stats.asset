@@ -15,20 +15,22 @@ MonoBehaviour:
   stats:
     statsName: Enemy 1
     patrolWaiting: 1
-    waitTime: 2
-    walkSpeed: 5
-    chaseSpeed: 8
+    waitTime: 2.5
+    walkSpeed: 2
+    chaseSpeed: 5
     radius: 15
     angle: 145
-    attackDistance: 0
+    attackDistance: 2.5
     stoppingDistance: 0
+    lostSightDelay: 3
+    lookSpeed: 5
     targetMask:
       serializedVersion: 2
       m_Bits: 256
     obstructionMask:
       serializedVersion: 2
       m_Bits: 512
-    attackRange: 0
     attackDamage: 0
     timeBetweenAttacks: 0
-    maxHealth: 0
+    movePredictionThreshold: 0
+    movePredictionTime: 1
