@@ -45,7 +45,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         base.Awake();
 
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        catAgent = GameObject.Find("Cat Agent").GetComponent<CatAgent>();
+        catAgent = GameObject.Find("Cat 01").GetComponent<CatAgent>();
         
         RefreshUI();
     }
