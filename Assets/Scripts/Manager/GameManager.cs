@@ -19,18 +19,6 @@ public class GameManager : Singleton<GameManager>
         PauseGame();
     }
     #endregion
-
-    #region Main Menu
-    public void CreateNewGame()
-    {
-        SaveManager.Instance.NewGame();
-    }
-
-    public void ContinueGame()
-    {
-        SaveManager.Instance.LoadGame();
-    }
-    #endregion
     
     #region Pause menu
     public void RestartDay()
@@ -63,12 +51,5 @@ public class GameManager : Singleton<GameManager>
     {
         SceneManager.LoadScene("Menu");
     }    
-    #endregion
-
-    #region Both
-    public void QuitGame()
-    {
-        Application.Quit();
-    }
     #endregion
 }
