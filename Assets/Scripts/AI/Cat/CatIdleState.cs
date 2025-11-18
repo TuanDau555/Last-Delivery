@@ -4,7 +4,7 @@ using UnityEngine.AI;
 public class CatIdleState : CatBaseState
 {
     private NavMeshAgent _catAgent;
-    public CatIdleState(CatAgent cat, NavMeshAgent agent) : base(cat)
+    public CatIdleState(CatAgent cat, Animator animator, NavMeshAgent agent) : base(cat, animator)
     {
         this._catAgent = agent;
     }
@@ -12,6 +12,7 @@ public class CatIdleState : CatBaseState
     #region Execute
     public override void OnEnter()
     {
+        SetAnimation(IdleLyingHash);
         Debug.Log("Cat is Idling");
     }
 

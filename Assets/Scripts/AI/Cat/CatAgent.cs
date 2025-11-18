@@ -15,6 +15,7 @@ public class CatAgent : BaseInteract, ISaveable
     [Header("Pref")]
     [SerializeField] private CatStatsSO catStatsSO;
     [SerializeField] private NavMeshAgent catAgent;
+    [SerializeField] private Animator animator;
     [SerializeField] private Transform playerTransform;
 
     [Space(10)]
@@ -40,6 +41,8 @@ public class CatAgent : BaseInteract, ISaveable
     void Start()
     {
         _stateMachine = new StateMachine();
+        animator = GetComponent<Animator>();
+
         CatState(this, catAgent, _stateMachine);
         
         
@@ -114,8 +117,8 @@ public class CatAgent : BaseInteract, ISaveable
     void CatState(CatAgent cat, NavMeshAgent agent, StateMachine stateMachine)
     {
 
-        var idleState = new CatIdleState(cat, agent);
-        var followState = new FollowState(cat, agent, playerTransform, catStatsSO);
+        var idleState = new CatIdleState(cat, animator, agent);
+        var followState = new FollowState(cat, animator, agent, playerTransform, catStatsSO);
 
         Any(idleState, new FuncPredicate(() => _isDelivery == false));
         At(idleState, followState, new FuncPredicate(() => _isDelivery));
