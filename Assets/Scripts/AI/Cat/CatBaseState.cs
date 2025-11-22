@@ -3,7 +3,7 @@ using UnityEngine;
 public class CatBaseState : IState
 {
     private int currentAnimHash;
-    private readonly Animator animator; 
+    protected readonly Animator animator; 
     
     protected readonly CatAgent cat;
 

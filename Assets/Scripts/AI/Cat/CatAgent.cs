@@ -24,7 +24,7 @@ public class CatAgent : BaseInteract, ISaveable
     [SerializeField] private Slider catMoodBar;
 
     [Space(10)]
-    [SerializeField] private Vector3 catIdlePos;
+    public Vector3 catIdlePos;
 
     private StateMachine _stateMachine;
     private bool _isDelivery;
@@ -137,7 +137,6 @@ public class CatAgent : BaseInteract, ISaveable
     private void Delivery_OnStopDelivery(object sender, EventArgs e)
     {
         _isDelivery = false;
-        transform.position = catIdlePos; // TODO: set the cat position at it bed 
     }
     #endregion
 

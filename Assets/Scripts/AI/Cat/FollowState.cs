@@ -21,7 +21,7 @@ public class FollowState : CatBaseState
     {
         Debug.Log("Cat is Follow player");
         InitializeAgent();
-        SetAnimation(IdleStandHash);
+        animator.CrossFade(IdleStandHash, 0.2f);
 
         FollowPlayer();
     }

@@ -4,15 +4,23 @@ using UnityEngine.AI;
 public class CatIdleState : CatBaseState
 {
     private NavMeshAgent _catAgent;
+    private Vector3 _idlePos;
     public CatIdleState(CatAgent cat, Animator animator, NavMeshAgent agent) : base(cat, animator)
     {
         this._catAgent = agent;
+        _idlePos = cat.catIdlePos;
     }
 
     #region Execute
     public override void OnEnter()
     {
-        SetAnimation(IdleLyingHash);
+        animator.CrossFade(IdleLyingHash, 0.2f);
+
+        _catAgent.Warp(_idlePos);
+        
+        _catAgent.isStopped = true;
+        
+
         Debug.Log("Cat is Idling");
     }
 
