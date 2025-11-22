@@ -30,6 +30,10 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
+    /// <summary>
+    /// Hàm này thể hiện vị trí món nên được giao đến (Container nào ?)
+    /// </summary>
+    /// <param name="tableName">Là địa điểm được giao dến</param>
     public void ShowDeliveryTableFeedback(string tableName)
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -41,6 +45,10 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
 
+    /// <summary>
+    /// Cửa để qua lV2 
+    /// Chỉ khi đạt được từ 7 ngày thì mới mở của
+    /// </summary>
     public void ShowChangeConditionFeedback()
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -52,6 +60,9 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
 
+    /// <summary>
+    /// Nếu player cầm gì đó rồi thì không cầm được thêm nữa
+    /// </summary>
     public void ShowPlayerHoldSomethingFeedback()
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -63,6 +74,10 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
 
+    /// <summary>
+    /// Khi giao hàng thành công thì hiện feedback
+    /// </summary>
+    /// <param name="moneyAdd">Số tiền được thưởng khi hoàn thành</param>
     public void ShowDeliverySuccessFeedback(int moneyAdd)
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -73,6 +88,11 @@ public class UIManager : Singleton<UIManager>
 
         StartCountDown();
     }
+
+    /// <summary>
+    /// Khi giao hành thất bại thì hiện feedback
+    /// </summary>
+    /// <param name="penaltyMoney">Số tiền bị phạt khi không hoàn thành</param>
     public void ShowWrongDeliveryFeedback(int penaltyMoney)
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -84,6 +104,9 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
 
+    /// <summary>
+    /// Feedback khi món hàng này đã được giao hoặc đang giao
+    /// </summary>
     public void ShowAlreadyDeliverObject()
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -95,6 +118,9 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
     
+    /// <summary>
+    /// Feedback này khi người chơi cố gắng đem hàng qua một địa điểm khác mà không giao
+    /// </summary>
     public void FinishTheOrderFeedback()
     {
          if (feedbackPanel == null || feedbackText == null) return;
@@ -106,6 +132,9 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
     
+    /// <summary>
+    /// Feedback hiện lên khi player không đủ tiền mua đồ
+    /// </summary>
     public void NotEnoughMoney()
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -116,6 +145,10 @@ public class UIManager : Singleton<UIManager>
 
         StartCountDown();
     }
+    
+    /// <summary>
+    /// Feedback hiện lên khi player kết thúc một ngày
+    /// </summary>
     public void NextDayWelcome()
     {
         if (feedbackPanel == null || feedbackText == null) return;
@@ -135,6 +168,9 @@ public class UIManager : Singleton<UIManager>
         isShowingUI = false;
     }
 
+    /// <summary>
+    /// Đếm ngược trước khi tắt feedback
+    /// </summary>
     private void StartCountDown()
     {
         hideTimer = autoHide;
