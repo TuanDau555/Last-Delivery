@@ -34,13 +34,6 @@ public class SaveManager : SingletonPersistent<SaveManager>
     {
         saveData = fileDataHandler.LoadFile();
 
-        // Just for testing
-        if (saveData == null)
-        {
-            Debug.LogError("No save data found. Please start a new game first.");
-            NewGame();
-        }
-
         // Push the data to all objects that need it
         foreach (ISaveable saveable in saveableObject)
         {
@@ -79,12 +72,11 @@ public class SaveManager : SingletonPersistent<SaveManager>
     {
         saveData = checkpointDataHandler.LoadFile();
 
-        // Just for testing
-        // if (saveData == null)
-        // {
-        //     Debug.LogError("No save data found. Please start a new game first.");
-        //     NewGame();
-        // }
+        if (saveData == null)
+        {
+            Debug.LogError("No save data found. Please start a new game first.");
+            NewGame();
+        }
 
         // Push the data to all objects that need it
         foreach (ISaveable saveable in saveableObject)
