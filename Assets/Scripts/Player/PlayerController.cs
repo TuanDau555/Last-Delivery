@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     // ...I want to make the player to be able crouching immediately at the beginning of the game
     private bool isCrouching = true;
     private bool isTransition;
+    private bool canSprint = true;
 
     private float _walkBobAmount;
     private float _sprintBobAmount;
@@ -134,7 +135,12 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         UpdateHistoricalPosition();
 
         if(playerStatsSO.stats.useStamina)
-            HandleStamina(playerStatsSO.stats.staminaUseMultiplier);
+            HandleStamina(
+                playerStatsSO.stats.staminaUseMultiplier, 
+                playerStatsSO.stats.stamina, 
+                playerStatsSO.stats.timeBeforeStaminaRegenStarts, 
+                playerStatsSO.stats.staminaTimeIncrement, 
+                playerStatsSO.stats.staminaIncrement);
     }
 
     void OnEnable()
@@ -251,7 +257,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         // if crouch using crouchSpeed else just use walk speed
         // NOTE: we don't want to sprint when crouch
-        float finalSpeed = !isCrouching ? _crouchSpeed : _inputManager.IsSprinting() ? _sprintSpeed : _walkSpeed;
+        float finalSpeed = !isCrouching ? _crouchSpeed : (_inputManager.IsSprinting() && canSprint ? _sprintSpeed : _walkSpeed);
 
         // Apply movement
         Vector3 finalMove = (_moveDirection * finalSpeed) + (_playerVelocity.y * Vector3.up);
@@ -334,15 +340,32 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         }
     }
 
-    private void HandleStamina(float staminaUseValue)
+    private void HandleStamina(float staminaUseValue, float maxStamina, float startRegen, float timeIncrement, float staminaIncrementValue)
     {
         _moveInput = _inputManager.GetPlayerMovement();
         bool isMoving = _moveInput.magnitude > 0.1f;
 
-        if(_inputManager.IsSprinting() && isMoving)
+        if(_inputManager.IsSprinting() && isMoving && canSprint)
         {
+            // Make sure that regenerate stamina coroutine stop when sprinting
+            if(regeneratingStaminaCoroutine != null)
+            {
+                StopCoroutine(regeneratingStaminaCoroutine);
+                regeneratingStaminaCoroutine = null;
+            }
+            
             _currentStamina -= staminaUseValue * Time.deltaTime;
+
+            if(_currentStamina < 0)
+                _currentStamina = 0;
+
+            if(_currentStamina <= 0)
+                canSprint = false;
         }
+        if(!_inputManager.IsSprinting() && _currentStamina < maxStamina && regeneratingStaminaCoroutine == null)
+        {
+            regeneratingStaminaCoroutine = StartCoroutine(RegenerateStamina(startRegen, timeIncrement, maxStamina, staminaIncrementValue));
+        }   
     }
     
     private void OnSceneLoad_PlayerPosition(Scene scene, LoadSceneMode mode)
@@ -378,6 +401,28 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         if (_controller != null)
             _controller.enabled = true;
         
+    }
+
+    private IEnumerator RegenerateStamina(float startRegen, float timeIncrement, float maxStamina, float incrementValue)
+    {
+        yield return new WaitForSeconds(startRegen);
+        WaitForSeconds timeToWait = new WaitForSeconds(timeIncrement);
+
+        while(_currentStamina < maxStamina)
+        {
+            if(_currentStamina < maxStamina)
+                canSprint = true;
+            
+            _currentStamina += incrementValue;
+
+            // Prevent larger than max stamina
+            if(_currentStamina > maxStamina)
+                _currentStamina = maxStamina;
+
+                yield return timeToWait;
+        }
+
+        regeneratingStaminaCoroutine = null;
     }
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion
