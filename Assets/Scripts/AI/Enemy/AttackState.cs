@@ -8,6 +8,8 @@ public class AttackState : EnemyBaseState
     private EnemyStatsSO _statsSO;
     private PlayerController _player;
     private FieldOfView _fov;
+    private float _attackTimer;
+    private float _attackDamge;
     #endregion
 
     #region Constructor
@@ -24,9 +26,10 @@ public class AttackState : EnemyBaseState
     #region Execute
     public override void OnEnter()
     {
+        base.OnEnter();
         animator.CrossFade(AttackHash, crossFadeDuration);
         
-        base.OnEnter();
+        InitializeAgent();
         Debug.Log("Enemy is attacking");
     }
 
@@ -38,6 +41,7 @@ public class AttackState : EnemyBaseState
     public override void Update()
     {
         base.Update();
+        HandleAttack();
     }
 
     public override void OnExit()
@@ -47,10 +51,30 @@ public class AttackState : EnemyBaseState
     #endregion
 
     #region Initialize
-    // TODO: Initialize Enemy stats from SO and call it from OnEnter()
+    private void InitializeAgent()
+    {
+        _attackTimer = _statsSO.stats.timeBetweenAttacks;
+        _attackDamge = _statsSO.stats.attackDamage;
+    }
     #endregion
 
     #region Attack State
-    // TODO: Enemy attack player and player decreasing  anh 
+    public void HandleAttack()
+    {
+        _attackTimer += Time.deltaTime;
+        if(_attackTimer >= _statsSO.stats.timeBetweenAttacks)
+        {
+            _attackTimer = 0f;
+            PerformAttack(_attackDamge);
+        }
+    }
+
+    private void PerformAttack(float damage)
+    {
+        if(_player != null)
+        {
+            _player.TakeDamage(damage);
+        }
+    }
     #endregion
 }

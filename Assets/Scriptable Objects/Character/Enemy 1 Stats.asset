@@ -30,7 +30,7 @@ MonoBehaviour:
     obstructionMask:
       serializedVersion: 2
       m_Bits: 512
-    attackDamage: 0
-    timeBetweenAttacks: 0
+    attackDamage: 9.5
+    timeBetweenAttacks: 2
     movePredictionThreshold: 0
     movePredictionTime: 1

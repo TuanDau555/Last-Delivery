@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Character Stats,", menuName = "Stats/Player")]
@@ -14,6 +15,23 @@ public class CharacterStatsSO : ScriptableObject
         [Header("HP/Stamina")]
         public float HP;
         public float stamina;
+        public bool useStamina;
+
+        [Tooltip("Use stamina value")]
+        [Range(1, 10)]
+        public float staminaUseMultiplier = 5f;
+        
+        [Tooltip("Stamina cool down")]
+        [Range(1, 5)]
+        public float timeBeforeStaminaRegenStarts = 3f;
+        
+        [Tooltip("Stamina cool down value")]
+        [Range(1, 5)]
+        public float staminaIncrement = 2f;
+        
+        [Tooltip("Time between stamina increment")]
+        [Range(0.01f, 1f)]
+        public float staminaTimeIncrement = 0.1f;
         [Space(10)]
         [Header("Move")]
         public float walkSpeed;

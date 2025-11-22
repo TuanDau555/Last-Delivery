@@ -65,6 +65,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private Vector3 _mouseDirection;
     private Vector2 _mouseDelta;
     private Coroutine buffCoroutine;
+    private Coroutine regeneratingStaminaCoroutine;
 
     // I set it true at init because...
     // ...I want to make the player to be able crouching immediately at the beginning of the game
@@ -83,6 +84,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     public float _sprintSpeed { private get; set; }
     public float _crouchSpeed { private get; set; }
     public float _currentHealth {  get; set; }
+    public float _currentStamina { private get; set; }
 
     private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #endregion
@@ -130,6 +132,9 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         ApplyFinalMovement();
 
         UpdateHistoricalPosition();
+
+        if(playerStatsSO.stats.useStamina)
+            HandleStamina(playerStatsSO.stats.staminaUseMultiplier);
     }
 
     void OnEnable()
@@ -157,10 +162,13 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         _crouchBobAmount = playerStats.stats.crouchBobAmount;
         _crouchBobSpeed = playerStats.stats.crouchBobSpeed;
         
-        // Health and Stamina
+        // Health
         playerHealthBar.maxValue = playerStats.stats.HP;
         _currentHealth = playerHealthBar.maxValue;
         playerHealthBar.value = _currentHealth;
+
+        // Stamina 
+        _currentStamina = playerStats.stats.stamina;
     }
     #endregion
 
@@ -219,7 +227,17 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     }
     #endregion
 
-    #region Final Calculate        
+    #region Final Calculate
+    public void TakeDamage(float damage)
+    {
+        _currentHealth -= damage;
+        playerHealthBar.value = _currentHealth;
+
+        if(_currentHealth <= 0)
+        {
+            GameManager.Instance.GameOver();
+        }
+    }        
     private void ApplyFinalMovement()
     {
         if (IsGround() && _playerVelocity.y < 0)
@@ -316,9 +334,28 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         }
     }
 
+    private void HandleStamina(float staminaUseValue)
+    {
+        _moveInput = _inputManager.GetPlayerMovement();
+        bool isMoving = _moveInput.magnitude > 0.1f;
+
+        if(_inputManager.IsSprinting() && isMoving)
+        {
+            _currentStamina -= staminaUseValue * Time.deltaTime;
+        }
+    }
+    
     private void OnSceneLoad_PlayerPosition(Scene scene, LoadSceneMode mode)
     {
         StartCoroutine(PlayerPosAfterLoadScene());
+        if (scene.name == "Menu")
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _controller.enabled = true;
+        }
     }
 
     private IEnumerator PlayerPosAfterLoadScene()
