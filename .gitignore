@@ -132,6 +132,14 @@ mono_crash.*
 *.mkv
 *.webm
 
+# Ignore font files
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+*.sfnt
+
 # Crashlytics generated file
 crashlytics-build.properties
 
