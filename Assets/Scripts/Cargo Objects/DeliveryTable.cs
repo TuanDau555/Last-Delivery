@@ -26,7 +26,7 @@ public class DeliveryTable : BaseInteract
                 DeliveryManager.Instance.ClearDeliveryObject();
                 DeliveryManager.Instance.TriggerDeliverySuccess(cargoObjectSO, this);
 
-                if(DeliveryManager.Instance.GetWaitingList().Count > 0)
+                if(DeliveryManager.Instance.GetWaitingList().Count >= 0)
                 {
                     
                     DeliveryManager.Instance.TriggerStopDelivery();
