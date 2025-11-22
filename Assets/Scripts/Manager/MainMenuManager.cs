@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
@@ -16,16 +18,27 @@ public class MainMenuManager : MonoBehaviour
     public void CreateNewGame()
     {
         SaveManager.Instance.NewGame();
+        SceneManager.LoadScene("LV1");
     }
 
-    public void ContinueGame()
+    public void ContinueGameBtn()
     {
-        SaveManager.Instance.LoadGame();
+        if(!SaveManager.Instance.HasSaveFile()) return;
+        StartCoroutine(LoadAndContinue());
+        Time.timeScale = 1f;
     }
 
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    private IEnumerator LoadAndContinue()
+    {
+        SceneManager.sceneLoaded += OnSceneLoad;
+
+        yield return SceneManager.LoadSceneAsync("LV1");
+        
     }
     #endregion
 
@@ -33,6 +46,18 @@ public class MainMenuManager : MonoBehaviour
     private void HideContinueBtn()
     {
         continueBtn.interactable = SaveManager.Instance.HasSaveFile();
+    }
+    #endregion
+
+    #region LoadScene
+    private void OnSceneLoad(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoad;
+
+        // Refresh to find object in when load scene
+        SaveManager.Instance.RefreshSaveables();
+
+        SaveManager.Instance.LoadGame();
     }
     #endregion
 }

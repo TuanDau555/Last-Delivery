@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 public class SaveManager : SingletonPersistent<SaveManager>
@@ -61,6 +62,16 @@ public class SaveManager : SingletonPersistent<SaveManager>
 
         fileDataHandler.SaveFile(saveData);
     }
+
+    public bool HasSaveFile()
+    {
+        if(fileDataHandler == null)
+        {
+            fileDataHandler = new FileDataHandler(Application.persistentDataPath, savefileName);
+        }
+        Debug.Log(File.Exists(fileDataHandler.SavePath()));
+        return File.Exists(fileDataHandler.SavePath());
+    }
     #endregion
 
     #region Save/Load Checkpoint
@@ -69,11 +80,11 @@ public class SaveManager : SingletonPersistent<SaveManager>
         saveData = checkpointDataHandler.LoadFile();
 
         // Just for testing
-        if (saveData == null)
-        {
-            Debug.LogError("No save data found. Please start a new game first.");
-            NewGame();
-        }
+        // if (saveData == null)
+        // {
+        //     Debug.LogError("No save data found. Please start a new game first.");
+        //     NewGame();
+        // }
 
         // Push the data to all objects that need it
         foreach (ISaveable saveable in saveableObject)
@@ -94,6 +105,11 @@ public class SaveManager : SingletonPersistent<SaveManager>
     #endregion
     
     #region Find Save Object
+    public void RefreshSaveables()
+    {
+        saveableObject = FindAllSaveableObjects();
+    }
+
     private List<ISaveable> FindAllSaveableObjects()
         => FindObjectsOfType<MonoBehaviour>().OfType<ISaveable>().ToList();
     #endregion
