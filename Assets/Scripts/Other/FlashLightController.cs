@@ -14,6 +14,8 @@ public class FlashLightController : MonoBehaviour
 
             flashLight.enabled = _isOn;
         }
+        flashLight.enabled = _isOn;
+
     }
 
     void Update()
