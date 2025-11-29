@@ -46,7 +46,7 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 1f;
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Locked;
         gamePausePanel.SetActive(false);
     }
     
