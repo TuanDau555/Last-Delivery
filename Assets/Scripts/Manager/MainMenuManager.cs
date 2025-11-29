@@ -5,12 +5,18 @@ using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
 {
+    #region KEYS
+    private const string VSYNC_KEY = "VSync";
+    #endregion
+    
     [SerializeField] private Button continueBtn;
+    [SerializeField] private Toggle vSynceToggle;
 
     #region Excute
     private void Start()
     {
         HideContinueBtn();
+        LoadSetting();
     }
     #endregion
 
@@ -58,6 +64,36 @@ public class MainMenuManager : MonoBehaviour
         SaveManager.Instance.RefreshSaveables();
 
         SaveManager.Instance.LoadGame();
+    }
+    #endregion
+
+    #region Game Setting
+    public void OnVSyncToggleChanged(bool enabled)
+    {
+        QualitySettings.vSyncCount = enabled ? 1 : 0;
+
+        Application.targetFrameRate = enabled ? 60 : -1;
+
+        Debug.Log("VSync: " + QualitySettings.vSyncCount);
+        Debug.Log("Target FPS: " + Application.targetFrameRate);
+    }
+    #endregion
+
+    #region Save/Load Setting
+    public void SaveSetting()
+    {
+        PlayerPrefs.SetInt(VSYNC_KEY, QualitySettings.vSyncCount);
+        PlayerPrefs.Save();
+    }
+
+    public void LoadSetting()
+    {
+        int v = PlayerPrefs.GetInt(VSYNC_KEY, 1); // default = ON
+
+        QualitySettings.vSyncCount = v;
+        Application.targetFrameRate = (v > 0) ? 60 : -1;
+
+        vSynceToggle.SetIsOnWithoutNotify(v > 0);
     }
     #endregion
 }
