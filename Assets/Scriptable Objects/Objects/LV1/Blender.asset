@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f4afd38ffa6b141b700e7e6d30b0a5, type: 3}
+  m_Name: Blender
+  m_EditorClassIdentifier: 
+  id: Blender 02
+  objectName: Blender 02
+  isLostItem: 0
+  cargoPrice: 50
+  penaltyPrice: 20
+  cargoOrderPrefab: {fileID: 1011708993268742336, guid: 2fff9479779301749823c97a516ac9f2,
+    type: 3}
+  cargoPrefab: {fileID: 2377634603669225278, guid: 487aadc8a5bb7ac439888c8973eb4eb0,
+    type: 3}
+  cargoOrderSprite: {fileID: 21300000, guid: 94b24d71ab1a50b4eb0233df3b81921f, type: 3}

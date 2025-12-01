@@ -15,7 +15,12 @@ MonoBehaviour:
   stats:
     statsName: Player Stats
     HP: 100
-    stamina: 100
+    stamina: 70
+    useStamina: 1
+    staminaUseMultiplier: 10
+    timeBeforeStaminaRegenStarts: 3
+    staminaIncrement: 5
+    staminaTimeIncrement: 0.1
     walkSpeed: 3.5
     crouchSpeed: 2
     sprintSpeed: 8.5

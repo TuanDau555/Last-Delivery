@@ -31,4 +31,9 @@ public class FeedbackTextSO : ScriptableObject
     [TextArea(3, 10)]
     [Tooltip("Congratulation to player when complete one day")]
     public string nextDayCongratulation;
+
+    [TextArea(3, 10)]
+    [Tooltip("Cat Mood Bar lower than 30")]
+    public string lowMoodWarning;
+
 }

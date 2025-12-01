@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     [Space(10)]
     [Header("Reference")]
     [SerializeField] private CharacterStatsSO playerStatsSO;
+    private FootstepManager footstepManager;
 
     [Space(10)]
     [Header("Required Component")]
@@ -65,11 +66,13 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private Vector3 _mouseDirection;
     private Vector2 _mouseDelta;
     private Coroutine buffCoroutine;
+    private Coroutine regeneratingStaminaCoroutine;
 
     // I set it true at init because...
     // ...I want to make the player to be able crouching immediately at the beginning of the game
     private bool isCrouching = true;
     private bool isTransition;
+    private bool canSprint = true;
 
     private float _walkBobAmount;
     private float _sprintBobAmount;
@@ -77,12 +80,15 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private float _walkBobSpeed;
     private float _sprintBobSpeed;
     private float _crouchBobSpeed;
+    private float _mouseSen;
+    private float _stepTimer;
     
 
     public float _walkSpeed { private get; set; }
     public float _sprintSpeed { private get; set; }
     public float _crouchSpeed { private get; set; }
     public float _currentHealth {  get; set; }
+    public float _currentStamina { private get; set; }
 
     private readonly Vector3 DEFAULT_POS = new Vector3(0, 1.5f, 0);
     #endregion
@@ -114,7 +120,8 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     {
         _inputManager = InputManager.Instance;
         playerCamera = Camera.main.transform;
-
+        footstepManager = GetComponent<FootstepManager>();
+        
         InitPlayerStat(playerStatsSO);
     }
 
@@ -130,6 +137,14 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         ApplyFinalMovement();
 
         UpdateHistoricalPosition();
+
+        if(playerStatsSO.stats.useStamina)
+            HandleStamina(
+                playerStatsSO.stats.staminaUseMultiplier, 
+                playerStatsSO.stats.stamina, 
+                playerStatsSO.stats.timeBeforeStaminaRegenStarts, 
+                playerStatsSO.stats.staminaTimeIncrement, 
+                playerStatsSO.stats.staminaIncrement);
     }
 
     void OnEnable()
@@ -144,6 +159,9 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
     void InitPlayerStat(CharacterStatsSO playerStats)
     {   
+        // Mouse Sensitive
+        _mouseSen = PlayerPrefs.GetFloat("MouseSensitivity", 1.0f);
+        playerStatsSO.stats.lookSensitive = _mouseSen;
         // Move
         _walkSpeed = playerStats.stats.walkSpeed;
         _sprintSpeed = playerStats.stats.sprintSpeed;
@@ -157,10 +175,13 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         _crouchBobAmount = playerStats.stats.crouchBobAmount;
         _crouchBobSpeed = playerStats.stats.crouchBobSpeed;
         
-        // Health and Stamina
+        // Health
         playerHealthBar.maxValue = playerStats.stats.HP;
         _currentHealth = playerHealthBar.maxValue;
         playerHealthBar.value = _currentHealth;
+
+        // Stamina 
+        _currentStamina = playerStats.stats.stamina;
     }
     #endregion
 
@@ -219,7 +240,17 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     }
     #endregion
 
-    #region Final Calculate        
+    #region Final Calculate
+    public void TakeDamage(float damage)
+    {
+        _currentHealth -= damage;
+        playerHealthBar.value = _currentHealth;
+
+        if(_currentHealth <= 0)
+        {
+            GameManager.Instance.GameOver();
+        }
+    }        
     private void ApplyFinalMovement()
     {
         if (IsGround() && _playerVelocity.y < 0)
@@ -233,7 +264,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         // if crouch using crouchSpeed else just use walk speed
         // NOTE: we don't want to sprint when crouch
-        float finalSpeed = !isCrouching ? _crouchSpeed : _inputManager.IsSprinting() ? _sprintSpeed : _walkSpeed;
+        float finalSpeed = !isCrouching ? _crouchSpeed : (_inputManager.IsSprinting() && canSprint ? _sprintSpeed : _walkSpeed);
 
         // Apply movement
         Vector3 finalMove = (_moveDirection * finalSpeed) + (_playerVelocity.y * Vector3.up);
@@ -285,9 +316,10 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
     private void ApplyFinalLook(float clampAngle)
     {
+        _mouseSen = playerStatsSO.stats.lookSensitive;
         // Look Sensitive
-        _mouseDirection.x += _mouseDelta.x * playerStatsSO.stats.lookSensitive * Time.deltaTime;
-        _mouseDirection.y += _mouseDelta.y * playerStatsSO.stats.lookSensitive * Time.deltaTime;
+        _mouseDirection.x += _mouseDelta.x * _mouseSen * Time.deltaTime;
+        _mouseDirection.y += _mouseDelta.y * _mouseSen * Time.deltaTime;
 
         // Limit look angle
         _mouseDirection.y = Mathf.Clamp(_mouseDirection.y, -clampAngle, clampAngle);
@@ -306,6 +338,14 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         if (Mathf.Abs(_moveDirection.x) > 0.1f || Mathf.Abs(_moveDirection.z) > 0.1f)
         {
+            _stepTimer += Time.deltaTime;
+
+            if(_stepTimer >= playerStatsSO.stats.stepInterval)
+            {
+                _stepTimer = 0;
+                footstepManager.PlayStep();
+            }
+            
             _timer += Time.deltaTime * headBobSpeed;
             // just want to bobbing on Y axis
             playerCamera.transform.localPosition = new Vector3(
@@ -316,9 +356,45 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         }
     }
 
+    private void HandleStamina(float staminaUseValue, float maxStamina, float startRegen, float timeIncrement, float staminaIncrementValue)
+    {
+        _moveInput = _inputManager.GetPlayerMovement();
+        bool isMoving = _moveInput.magnitude > 0.1f;
+
+        if(_inputManager.IsSprinting() && isMoving && canSprint)
+        {
+            // Make sure that regenerate stamina coroutine stop when sprinting
+            if(regeneratingStaminaCoroutine != null)
+            {
+                StopCoroutine(regeneratingStaminaCoroutine);
+                regeneratingStaminaCoroutine = null;
+            }
+            
+            _currentStamina -= staminaUseValue * Time.deltaTime;
+
+            if(_currentStamina < 0)
+                _currentStamina = 0;
+
+            if(_currentStamina <= 0)
+                canSprint = false;
+        }
+        if(!_inputManager.IsSprinting() && _currentStamina < maxStamina && regeneratingStaminaCoroutine == null)
+        {
+            regeneratingStaminaCoroutine = StartCoroutine(RegenerateStamina(startRegen, timeIncrement, maxStamina, staminaIncrementValue));
+        }   
+    }
+    
     private void OnSceneLoad_PlayerPosition(Scene scene, LoadSceneMode mode)
     {
         StartCoroutine(PlayerPosAfterLoadScene());
+        if (scene.name == "Menu")
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _controller.enabled = true;
+        }
     }
 
     private IEnumerator PlayerPosAfterLoadScene()
@@ -327,7 +403,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
             _controller.enabled = false;
 
         // We must wait for game Load complete, then we're able set the position for player
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(0.03f);
 
         GameObject playerRoom = GameObject.Find("Player Room");
         if (playerRoom != null)
@@ -341,6 +417,28 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
         if (_controller != null)
             _controller.enabled = true;
         
+    }
+
+    private IEnumerator RegenerateStamina(float startRegen, float timeIncrement, float maxStamina, float incrementValue)
+    {
+        yield return new WaitForSeconds(startRegen);
+        WaitForSeconds timeToWait = new WaitForSeconds(timeIncrement);
+
+        while(_currentStamina < maxStamina)
+        {
+            if(_currentStamina < maxStamina)
+                canSprint = true;
+            
+            _currentStamina += incrementValue;
+
+            // Prevent larger than max stamina
+            if(_currentStamina > maxStamina)
+                _currentStamina = maxStamina;
+
+                yield return timeToWait;
+        }
+
+        regeneratingStaminaCoroutine = null;
     }
     private bool IsGround() => Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
     #endregion

@@ -10,7 +10,7 @@ public class FollowState : CatBaseState
 
     #endregion
     
-    public FollowState(CatAgent cat, NavMeshAgent agent, Transform playerTransform, CatStatsSO statsSO) : base(cat)
+    public FollowState(CatAgent cat, Animator animator, NavMeshAgent agent, Transform playerTransform, CatStatsSO statsSO) : base(cat, animator)
     {
         this._catAgent = agent;
         this._playerTransform = playerTransform;
@@ -21,6 +21,7 @@ public class FollowState : CatBaseState
     {
         Debug.Log("Cat is Follow player");
         InitializeAgent();
+        animator.CrossFade(IdleStandHash, 0.2f);
 
         FollowPlayer();
     }
@@ -55,12 +56,14 @@ public class FollowState : CatBaseState
         if (playerDistance > _catStatsSO.stats.followDistance)
         {
             // Cat follow
+            SetAnimation(WalkHash);
             _catAgent.SetDestination(_playerTransform.position);
 
         }
         else if (playerDistance <= _catAgent.stoppingDistance)
         {
             // cat just standing there
+            SetAnimation(IdleStandHash);
             _catAgent.ResetPath();
         }
     }

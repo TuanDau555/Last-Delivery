@@ -6,7 +6,7 @@ public class LoadSceneManager : SingletonPersistent<LoadSceneManager>
 {
     [Space(10)]
     [SerializeField] private float _sceneChangeDuration = 0.3f;
-    
+    [SerializeField] private Animator sceneTransition;
     private const string LV1 = "Lv1";
     private const string LV2 = "Lv2";
 
@@ -29,7 +29,9 @@ public class LoadSceneManager : SingletonPersistent<LoadSceneManager>
 
 
         SaveManager.Instance.SaveGame();
-        // TODO: Fade in
+        
+        sceneTransition.SetTrigger("Start Crossfade");
+        
         yield return new WaitForSeconds(_sceneChangeDuration);
 
         if (SceneManager.GetActiveScene().buildIndex == 1)
@@ -57,7 +59,6 @@ public class LoadSceneManager : SingletonPersistent<LoadSceneManager>
         {
             DeliveryManager.Instance.SpawnLostItems();
         }
-        // TODO: Fade out
     }
     #endregion
 
@@ -72,6 +73,9 @@ public class LoadSceneManager : SingletonPersistent<LoadSceneManager>
     {
         yield return new WaitForSeconds(0.01f);
         SaveManager.Instance.LoadGame();
+
+        sceneTransition = GameObject.Find("Scene Loader").GetComponentInChildren<Animator>();
+        
         Debug.Log("Load Data Complete");
     }
     #endregion

@@ -7,6 +7,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 {
     #region KEYS & NAME
     private const string CURRENT_MONEY = "CurrentMoney";
+    private const string TARGET_MONEY = "TargetMoney";
     private const string CURRENT_DAY = "CurrentDay";
     private const string CURRENT_COLLECTED = "CurrentCollected";
     private const string MONEY = "Money Count";
@@ -45,25 +46,15 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         base.Awake();
 
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        catAgent = GameObject.Find("Cat Agent").GetComponent<CatAgent>();
+        catAgent = GameObject.Find("Cat 01").GetComponent<CatAgent>();
         
         RefreshUI();
-    }
-    
-    void Start()
-    {
-    }
-
-    void Update()
-    {
-
     }
 
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
-
 
     void OnDisable()
     {
@@ -115,7 +106,10 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
     /// </summary>
     public bool TryNextDay()
     {
-        if(_money >= _minMoneyToNextDay)
+        bool enoughMoney = _money >= _minMoneyToNextDay;
+        bool lostItemDone = !isOpenLv2 || _itemLostCount >= DeliveryManager.Instance.totalLostItemCount;
+
+        if(enoughMoney && lostItemDone)
         {
             _currentDay++;
             _itemLostCount = 0;
@@ -127,6 +121,11 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
             catAgent.currentMoodBar += 100;
             catAgent.UpdateMoodBar();
 
+            _minMoneyToNextDay = Mathf.RoundToInt(k_baseAmount * Mathf.Pow(k_growRate, _currentDay - 1));
+            
+            ShopManager.Instance.GenerateTodayShop();
+            ShopManager.Instance.DisplayOnWall();
+            
             UpdateMoneyUI();
             UpdateDayUI();
             UpdateLostUI();
@@ -134,7 +133,6 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
 
             SaveManager.Instance.SaveCheckpoint();
 
-            _minMoneyToNextDay = Mathf.RoundToInt(k_baseAmount * Mathf.Pow(k_growRate, _currentDay - 1));
             
             return true;
         }
@@ -171,6 +169,7 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         data.Set(CURRENT_MONEY, _money);
         data.Set(CURRENT_COLLECTED, _itemLostCount);
         data.Set(IS_OPEN_LV2, isOpenLv2);
+        data.Set(TARGET_MONEY, _minMoneyToNextDay);
     }
 
     public void Load(SaveData data)
@@ -179,7 +178,8 @@ public class WorldManager : SingletonPersistent<WorldManager>, ISaveable
         _money = data.Get<int>(CURRENT_MONEY, this._money);
         _itemLostCount = data.Get<int>(CURRENT_COLLECTED, this._itemLostCount);
         isOpenLv2 = data.Get<bool>(IS_OPEN_LV2, this.isOpenLv2);
-
+        _minMoneyToNextDay = data.Get<int>(TARGET_MONEY, this._minMoneyToNextDay);
+        
         RefreshUI();
     }
     #endregion

@@ -12,6 +12,9 @@ public class DoorTransition : BaseInteract
     [Tooltip("Where you want player to appear the other side")]
     [SerializeField] private Transform destinationPoint;
 
+    [Space(10)]
+    [SerializeField] private Animator sceneTransition;
+
     [Tooltip("Fade in/out time")]
     [SerializeField] private float fadeDuration = 0.5f;
 
@@ -27,10 +30,10 @@ public class DoorTransition : BaseInteract
     {
         _isTransition = true;
 
-        // TODO: Add Fade out duration here
+        sceneTransition.SetTrigger("Day Crossfade Start");
 
         yield return new WaitForSeconds(fadeDuration);
-
+        
         var _controller = player.GetComponent<CharacterController>();
 
         // turn of this component for a moment to move player 
@@ -57,6 +60,7 @@ public class DoorTransition : BaseInteract
         if (_controller != null)
             _controller.enabled = true;
 
+        sceneTransition.SetTrigger("Day Crossfade End");
         _isTransition = false;
 
     }
