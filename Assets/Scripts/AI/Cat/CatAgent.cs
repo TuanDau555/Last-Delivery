@@ -15,6 +15,7 @@ public class CatAgent : BaseInteract, ISaveable
     [Header("Pref")]
     [SerializeField] private CatStatsSO catStatsSO;
     [SerializeField] private NavMeshAgent catAgent;
+    [SerializeField] private Animator animator;
     [SerializeField] private Transform playerTransform;
 
     [Space(10)]
@@ -23,10 +24,12 @@ public class CatAgent : BaseInteract, ISaveable
     [SerializeField] private Slider catMoodBar;
 
     [Space(10)]
-    [SerializeField] private Vector3 catIdlePos;
+    public Vector3 catIdlePos;
 
     private StateMachine _stateMachine;
     private bool _isDelivery;
+    
+    private bool _isBeingPet;
     public float currentMoodBar { get; set; }
     #endregion
 
@@ -40,6 +43,8 @@ public class CatAgent : BaseInteract, ISaveable
     void Start()
     {
         _stateMachine = new StateMachine();
+        animator = GetComponent<Animator>();
+
         CatState(this, catAgent, _stateMachine);
         
         
@@ -95,7 +100,14 @@ public class CatAgent : BaseInteract, ISaveable
         }
         else
         {
-            Debug.Log("you have nothing to do");
+            if(currentMoodBar < catMoodBar.maxValue)
+            {
+                _isBeingPet = true;
+
+                catMoodBar.value = Mathf.Min(catMoodBar.value + 10, catMoodBar.maxValue);
+                currentMoodBar = Mathf.Min(currentMoodBar + 10, catMoodBar.maxValue);
+                Debug.Log("You are petting a cat");
+            }
         }
     }
     #endregion
@@ -114,11 +126,14 @@ public class CatAgent : BaseInteract, ISaveable
     void CatState(CatAgent cat, NavMeshAgent agent, StateMachine stateMachine)
     {
 
-        var idleState = new CatIdleState(cat, agent);
-        var followState = new FollowState(cat, agent, playerTransform, catStatsSO);
+        var idleState = new CatIdleState(cat, animator, agent);
+        var followState = new FollowState(cat, animator, agent, playerTransform, catStatsSO);
+        var petState = new PetState(cat, animator, agent);
 
-        Any(idleState, new FuncPredicate(() => _isDelivery == false));
+        Any(petState, new FuncPredicate(() => _isBeingPet == true));
+        Any(idleState, new FuncPredicate(() => _isDelivery == false && _isBeingPet == false));
         At(idleState, followState, new FuncPredicate(() => _isDelivery));
+        At(petState, followState, new FuncPredicate(() => _isDelivery && _isBeingPet == false));
 
         // Set Initial State
         stateMachine.SetState(idleState);
@@ -134,7 +149,11 @@ public class CatAgent : BaseInteract, ISaveable
     private void Delivery_OnStopDelivery(object sender, EventArgs e)
     {
         _isDelivery = false;
-        transform.position = catIdlePos; // TODO: set the cat position at it bed 
+    }
+
+    public void OnEndPet()
+    {
+        _isBeingPet = false;
     }
     #endregion
 
@@ -149,7 +168,16 @@ public class CatAgent : BaseInteract, ISaveable
     void UpdateMood()
     {
         if (catMoodBar.value >= 0 && _isDelivery)
-            catMoodBar.value -= Time.deltaTime * 2;
+        {
+            catMoodBar.value -= Time.deltaTime / 2;
+            currentMoodBar -= Time.deltaTime / 2;
+        }
+        
+        if(currentMoodBar <= 30)
+            UIManager.Instance.LowMoodWarning();
+
+        if(currentMoodBar == 0)
+            GameManager.Instance.GameOver();
     }
 
     public void ApplyBuff(float buffAmount)

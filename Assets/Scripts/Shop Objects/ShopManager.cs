@@ -11,11 +11,11 @@ public class ShopManager : Singleton<ShopManager>
 
     void Start()
     {
-        GenerateTodayShop();
-        DisplayOnWall();
+        // GenerateTodayShop();
+        // DisplayOnWall();
     }
 
-    private void DisplayOnWall()
+    public void DisplayOnWall()
     {
         for(int _shopSlot = 0; _shopSlot < shopSlots.Count; _shopSlot++)
         {
@@ -32,7 +32,7 @@ public class ShopManager : Singleton<ShopManager>
         }
     }
 
-    private void GenerateTodayShop()
+    public void GenerateTodayShop()
     {
         _currentItems.Clear();
 

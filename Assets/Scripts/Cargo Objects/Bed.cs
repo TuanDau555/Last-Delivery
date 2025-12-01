@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Bed : BaseInteract
 {
+    [Space(10)]
+    [SerializeField] private Animator sceneTransition;
     public override void Interact(PlayerController playerController)
     {
         base.Interact(playerController);
@@ -9,7 +11,7 @@ public class Bed : BaseInteract
         if (WorldManager.Instance.TryNextDay())
         {
             UIManager.Instance.NextDayWelcome();
-            // TODO: Fade in/out
+            sceneTransition.SetTrigger("Bed Crossfade");
         }
         else
         {
