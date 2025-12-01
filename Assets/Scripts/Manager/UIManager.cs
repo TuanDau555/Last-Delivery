@@ -160,6 +160,17 @@ public class UIManager : Singleton<UIManager>
         StartCountDown();
     }
     
+    public void LowMoodWarning()
+    {
+        if (feedbackPanel == null || feedbackText == null) return;
+
+        feedbackText.text = feedbackTextSO.lowMoodWarning;
+
+        feedbackPanel.SetActive(true);
+
+        StartCountDown();
+    }
+    
     private void HideFeedback()
     {
         if (feedbackPanel != null)

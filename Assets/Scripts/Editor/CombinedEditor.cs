@@ -30,6 +30,7 @@ public class CombinedEditor
 
         // New Mesh after collected
         Mesh combinedMesh = new Mesh();
+        combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; 
         combinedMesh.CombineMeshes(combine); // Combined it
 
         // Create new asset of that mesh, so we can use it
@@ -43,7 +44,7 @@ public class CombinedEditor
         MeshRenderer meshRenderer = combinedObject.AddComponent<MeshRenderer>();
         meshRenderer.sharedMaterial = meshFilters[0].GetComponent<MeshRenderer>().sharedMaterial;
 
-        AssetDatabase.CreateAsset(combinedMesh, "Asset/Models/CombinedMesh.asset");
+        AssetDatabase.CreateAsset(combinedMesh, "Assets/Models/CombinedMesh.asset");
 
         // Don't need old object, but still need to exit in the scene
         foreach(var item in selectedObject)

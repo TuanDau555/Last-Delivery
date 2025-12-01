@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     [Space(10)]
     [Header("Reference")]
     [SerializeField] private CharacterStatsSO playerStatsSO;
+    private FootstepManager footstepManager;
 
     [Space(10)]
     [Header("Required Component")]
@@ -79,6 +80,8 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     private float _walkBobSpeed;
     private float _sprintBobSpeed;
     private float _crouchBobSpeed;
+    private float _mouseSen;
+    private float _stepTimer;
     
 
     public float _walkSpeed { private get; set; }
@@ -117,7 +120,8 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
     {
         _inputManager = InputManager.Instance;
         playerCamera = Camera.main.transform;
-
+        footstepManager = GetComponent<FootstepManager>();
+        
         InitPlayerStat(playerStatsSO);
     }
 
@@ -155,6 +159,9 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
     void InitPlayerStat(CharacterStatsSO playerStats)
     {   
+        // Mouse Sensitive
+        _mouseSen = PlayerPrefs.GetFloat("MouseSensitivity", 1.0f);
+        playerStatsSO.stats.lookSensitive = _mouseSen;
         // Move
         _walkSpeed = playerStats.stats.walkSpeed;
         _sprintSpeed = playerStats.stats.sprintSpeed;
@@ -309,9 +316,10 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
     private void ApplyFinalLook(float clampAngle)
     {
+        _mouseSen = playerStatsSO.stats.lookSensitive;
         // Look Sensitive
-        _mouseDirection.x += _mouseDelta.x * playerStatsSO.stats.lookSensitive * Time.deltaTime;
-        _mouseDirection.y += _mouseDelta.y * playerStatsSO.stats.lookSensitive * Time.deltaTime;
+        _mouseDirection.x += _mouseDelta.x * _mouseSen * Time.deltaTime;
+        _mouseDirection.y += _mouseDelta.y * _mouseSen * Time.deltaTime;
 
         // Limit look angle
         _mouseDirection.y = Mathf.Clamp(_mouseDirection.y, -clampAngle, clampAngle);
@@ -330,6 +338,14 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
 
         if (Mathf.Abs(_moveDirection.x) > 0.1f || Mathf.Abs(_moveDirection.z) > 0.1f)
         {
+            _stepTimer += Time.deltaTime;
+
+            if(_stepTimer >= playerStatsSO.stats.stepInterval)
+            {
+                _stepTimer = 0;
+                footstepManager.PlayStep();
+            }
+            
             _timer += Time.deltaTime * headBobSpeed;
             // just want to bobbing on Y axis
             playerCamera.transform.localPosition = new Vector3(
@@ -387,7 +403,7 @@ public class PlayerController : MonoBehaviour, IObjectParent, ISaveable
             _controller.enabled = false;
 
         // We must wait for game Load complete, then we're able set the position for player
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(0.03f);
 
         GameObject playerRoom = GameObject.Find("Player Room");
         if (playerRoom != null)

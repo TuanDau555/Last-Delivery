@@ -28,6 +28,8 @@ public class CatAgent : BaseInteract, ISaveable
 
     private StateMachine _stateMachine;
     private bool _isDelivery;
+    
+    private bool _isBeingPet;
     public float currentMoodBar { get; set; }
     #endregion
 
@@ -98,7 +100,14 @@ public class CatAgent : BaseInteract, ISaveable
         }
         else
         {
-            Debug.Log("you have nothing to do");
+            if(currentMoodBar < catMoodBar.maxValue)
+            {
+                _isBeingPet = true;
+
+                catMoodBar.value = Mathf.Min(catMoodBar.value + 10, catMoodBar.maxValue);
+                currentMoodBar = Mathf.Min(currentMoodBar + 10, catMoodBar.maxValue);
+                Debug.Log("You are petting a cat");
+            }
         }
     }
     #endregion
@@ -119,9 +128,12 @@ public class CatAgent : BaseInteract, ISaveable
 
         var idleState = new CatIdleState(cat, animator, agent);
         var followState = new FollowState(cat, animator, agent, playerTransform, catStatsSO);
+        var petState = new PetState(cat, animator, agent);
 
-        Any(idleState, new FuncPredicate(() => _isDelivery == false));
+        Any(petState, new FuncPredicate(() => _isBeingPet == true));
+        Any(idleState, new FuncPredicate(() => _isDelivery == false && _isBeingPet == false));
         At(idleState, followState, new FuncPredicate(() => _isDelivery));
+        At(petState, followState, new FuncPredicate(() => _isDelivery && _isBeingPet == false));
 
         // Set Initial State
         stateMachine.SetState(idleState);
@@ -138,6 +150,11 @@ public class CatAgent : BaseInteract, ISaveable
     {
         _isDelivery = false;
     }
+
+    public void OnEndPet()
+    {
+        _isBeingPet = false;
+    }
     #endregion
 
     #region Init and Update Stats
@@ -151,7 +168,16 @@ public class CatAgent : BaseInteract, ISaveable
     void UpdateMood()
     {
         if (catMoodBar.value >= 0 && _isDelivery)
-            catMoodBar.value -= Time.deltaTime * 2;
+        {
+            catMoodBar.value -= Time.deltaTime / 2;
+            currentMoodBar -= Time.deltaTime / 2;
+        }
+        
+        if(currentMoodBar <= 30)
+            UIManager.Instance.LowMoodWarning();
+
+        if(currentMoodBar == 0)
+            GameManager.Instance.GameOver();
     }
 
     public void ApplyBuff(float buffAmount)

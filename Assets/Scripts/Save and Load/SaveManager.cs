@@ -38,8 +38,8 @@ public class SaveManager : SingletonPersistent<SaveManager>
         foreach (ISaveable saveable in saveableObject)
         {
             saveable.Load(saveData);
-            Debug.Log($"Load data for {saveable.GetType().Name}");
-            Debug.Log($"Data: {saveData.dataSaved}");
+            // Debug.Log($"Load data for {saveable.GetType().Name}");
+            // Debug.Log($"Data: {saveData.dataSaved}");
         }
     }
 
@@ -49,8 +49,8 @@ public class SaveManager : SingletonPersistent<SaveManager>
         foreach (ISaveable saveable in saveableObject)
         {
             saveable.Save(saveData);
-            Debug.Log($"Saved data for {saveable.GetType().Name}");
-            Debug.Log($"Data: {saveData.dataSaved}");
+            // Debug.Log($"Saved data for {saveable.GetType().Name}");
+            // Debug.Log($"Data: {saveData.dataSaved}");
         }
 
         fileDataHandler.SaveFile(saveData);
@@ -62,7 +62,6 @@ public class SaveManager : SingletonPersistent<SaveManager>
         {
             fileDataHandler = new FileDataHandler(Application.persistentDataPath, savefileName);
         }
-        Debug.Log(File.Exists(fileDataHandler.SavePath()));
         return File.Exists(fileDataHandler.SavePath());
     }
     #endregion

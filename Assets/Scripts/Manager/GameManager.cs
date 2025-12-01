@@ -1,17 +1,22 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
+    private const float fadeDuration = 0.3f;
 
     [SerializeField] private GameObject gamePausePanel;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private Animator sceneTransition;
     
     private InputManager _inputManager;
 
     #region Execute
     private void Start()
     {
+        if(SceneManager.GetActiveScene().name == "Menu") return;
+
         _inputManager = InputManager.Instance;
         gameOverPanel.SetActive(false);
         gamePausePanel.SetActive(false);
@@ -64,14 +69,30 @@ public class GameManager : Singleton<GameManager>
 
     public void BackToMenu()
     {
+        
         // Refresh object's list to save correct object in current Scene
         SaveManager.Instance.RefreshSaveables();
         SaveManager.Instance.SaveGame();
 
         ResetCoreSingletons();
-        SceneManager.LoadScene("Menu");
+        StartCoroutine(FadeBackToMenu());
+        Time.timeScale = 1f;
     }
 
+    private IEnumerator FadeBackToMenu()
+    {
+        sceneTransition.SetTrigger("Start Crossfade");
+
+        yield return new WaitForSeconds(fadeDuration);
+
+        AsyncOperation async = SceneManager.LoadSceneAsync("Menu");
+
+        while(!async.isDone) yield return null;
+
+        sceneTransition = GameObject.Find("Scene Loader").GetComponentInChildren<Animator>();
+        sceneTransition.Play("Crossfade_End");
+    }
+    
     private void ResetCoreSingletons()
     {
         Destroy(WorldManager.Instance?.gameObject);

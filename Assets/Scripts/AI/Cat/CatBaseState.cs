@@ -9,7 +9,7 @@ public class CatBaseState : IState
 
     protected static readonly int IdleLyingHash = Animator.StringToHash("Idle_lying_01");
     protected static readonly int IdleStandHash = Animator.StringToHash("Idle_stand");
-    protected static readonly int PetHash = Animator.StringToHash("Idle_lying_pet_01");
+    public static readonly int PetHash = Animator.StringToHash("Idle_lying_pet_01");
     protected static readonly int WalkHash = Animator.StringToHash("Walk");
 
     protected readonly float crossFadeDuration = 0.1f;

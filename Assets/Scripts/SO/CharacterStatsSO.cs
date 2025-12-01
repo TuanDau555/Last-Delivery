@@ -81,6 +81,10 @@ public class CharacterStatsSO : ScriptableObject
         public float crouchBobSpeed = 8f;
         [Range(0, 30)]
         public float crouchBobAmount = 0.25f;
+
+        [Tooltip("Foot step speedf")]
+        [Range(0.1f, 1)]
+        public float stepInterval = 0.5f;
         #endregion
     }
 }
